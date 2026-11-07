@@ -13,6 +13,7 @@
   --text: #e6f2ec;          /* main text color */
   --text-muted: #8fa89c;    /* expression (small line) color */
   --accent: #8fe0b5;        /* result number color */
+  --equals-text: #0d1a1a;   /* text color on the equals button */
 }
 
 /* ---------- Reset ----------
@@ -115,14 +116,62 @@ button:active {
 /* ---------- Equals button ---------- */
 .equals {
   background: var(--equals-bg);
-  color: #0d1a1a;                  /* dark text so it's readable on the light green */
+  color: var(--equals-text);   /* was: #0d1a1a *//* dark text so it's readable on the light green */
 }
 .equals:hover {
-  background: var(--accent);
+  background: var(--equals-hover);
 }
 
 /* ---------- Zero button ----------
    Spans 2 columns so it's twice as wide. */
 .zero {
   grid-column: span 2;
+}
+
+/* ---------- Light theme ----------
+   When <html> has data-theme="light", these values REPLACE the dark ones.
+   Everything using var(--...) updates automatically. */
+:root[data-theme="light"] {
+  --bg: #e8f3ee;
+  --calc-bg: #ffffff;
+  --display-bg: #f1f7f4;
+  --btn-bg: #e3eee8;
+  --btn-hover: #d3e4db;
+  --operator-bg: #6fa88a;
+  --operator-hover: #5c9678;
+  --equals-bg: #3f6b57;
+  --equals-hover: #2f5a47;
+  --equals-text: #ffffff;
+  --text: #16302a;
+  --text-muted: #5f7a6e;
+  --accent: #2f6b4f;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  justify-content: space-between;  /* title on the left, toggle on the right */
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Overrides the general "button" style, so the toggle is small and round */
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 1.1rem;
+  border-radius: 50%;
+}
+
+/* ---------- Smooth color change when switching themes ---------- */
+body,
+.calculator,
+.display {
+  transition: background 0.3s, color 0.3s;
 }

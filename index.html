@@ -18,6 +18,13 @@
   <!-- Container: wraps the whole calculator so we can center and style it as one box -->
   <div class="calculator">
 
+    <!-- Top bar: app name on the left, theme toggle button on the right -->
+    <div class="topbar">
+      <span class="title">Calc+</span>
+      <!-- aria-label describes the button for screen readers (icon-only buttons need it) -->
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark or light mode">☀️</button>
+    </div>
+
     <!-- Display: the screen at the top of the calculator -->
     <div class="display">
       <!-- Expression: the small line showing what you typed, e.g. 12 × 8 + 5 -->

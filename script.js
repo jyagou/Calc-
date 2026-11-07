@@ -177,6 +177,38 @@ buttonsEl.addEventListener("click", (e) => {
   }
 });
 
+// ---------- Dark / Light mode ----------
+const themeToggle = document.getElementById("theme-toggle");
+
+// Applies a theme by setting data-theme on <html>.
+// Our CSS reacts to this attribute and swaps the colors.
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  // Show the icon for the mode you'd switch TO
+  themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+}
+
+// Decide the starting theme:
+// 1) use the saved choice if there is one, 2) otherwise follow the device setting.
+// try/catch protects us if the browser blocks localStorage.
+let savedTheme = null;
+try {
+  savedTheme = localStorage.getItem("theme");
+} catch (err) {}
+
+const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+applyTheme(savedTheme || (systemPrefersDark ? "dark" : "light"));
+
+// When the toggle is clicked: flip the theme and save the choice.
+themeToggle.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try {
+    localStorage.setItem("theme", next);  // remembered even after refresh
+  } catch (err) {}
+});
+
 // Show the starting "0" when the page loads
 updateDisplay();
 
