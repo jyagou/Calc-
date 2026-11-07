@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Lets the page show letters/symbols like × ÷ − correctly -->
+  <meta charset="UTF-8">
+
+  <!-- Makes the page fit properly on phones -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- The text shown on the browser tab -->
+  <title>Calc+</title>
+
+  <!-- Connects our CSS file for styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Container: wraps the whole calculator so we can center and style it as one box -->
+  <div class="calculator">
+
+    <!-- Display: the screen at the top of the calculator -->
+    <div class="display">
+      <!-- Expression: the small line showing what you typed, e.g. 12 × 8 + 5 -->
+      <div class="expression" id="expression"></div>
+
+      <!-- Result: the big line showing the current number or answer -->
+      <div class="result" id="result">0</div>
+    </div>
+
+    <!-- Buttons: holds all 19 buttons; CSS grid will arrange them in 4 columns -->
+    <div class="buttons">
+
+      <!-- Row 1: clear, change sign, percent, divide -->
+      <!-- data-action tells JavaScript what special job the button does -->
+      <button data-action="clear">C</button>
+      <button data-action="sign">+/-</button>
+      <button data-action="percent">%</button>
+      <!-- data-operator tells JavaScript this button is a math operator -->
+      <button data-operator="÷" class="operator">÷</button>
+
+      <!-- Row 2 -->
+      <!-- data-number tells JavaScript which digit the button types -->
+      <button data-number="7">7</button>
+      <button data-number="8">8</button>
+      <button data-number="9">9</button>
+      <button data-operator="×" class="operator">×</button>
+
+      <!-- Row 3 -->
+      <button data-number="4">4</button>
+      <button data-number="5">5</button>
+      <button data-number="6">6</button>
+      <button data-operator="−" class="operator">−</button>
+
+      <!-- Row 4 -->
+      <button data-number="1">1</button>
+      <button data-number="2">2</button>
+      <button data-number="3">3</button>
+      <button data-operator="+" class="operator">+</button>
+
+      <!-- Row 5 -->
+      <!-- class="zero" lets CSS make this button twice as wide -->
+      <button data-number="0" class="zero">0</button>
+      <!-- Decimal point button -->
+      <button data-action="decimal">.</button>
+      <!-- Equals button: calculates the answer -->
+      <button data-action="equals" class="equals">=</button>
+
+    </div>
+  </div>
+
+  <!-- Connects our JavaScript file. It goes at the bottom so the HTML loads first -->
+  <script src="script.js"></script>
+</body>
+</html>
