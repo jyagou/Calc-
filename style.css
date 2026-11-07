@@ -1,0 +1,128 @@
+/* ---------- Color variables ----------
+   Stored in one place so we can change themes later
+   by only changing these values. */
+:root {
+  --bg: #0d1a1a;            /* page background */
+  --calc-bg: #142424;       /* calculator body */
+  --display-bg: #0a1414;    /* the screen area */
+  --btn-bg: #1f3333;        /* normal buttons */
+  --btn-hover: #2a4545;     /* normal buttons when hovered */
+  --operator-bg: #3f6b57;   /* operator buttons (÷ × − +) */
+  --operator-hover: #4f8269;
+  --equals-bg: #6fa88a;     /* equals button */
+  --text: #e6f2ec;          /* main text color */
+  --text-muted: #8fa89c;    /* expression (small line) color */
+  --accent: #8fe0b5;        /* result number color */
+}
+
+/* ---------- Reset ----------
+   Removes default browser spacing so sizes behave predictably.
+   box-sizing makes padding count inside an element's width. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---------- Page ----------
+   Centers the calculator in the middle of the screen. */
+body {
+  min-height: 100vh;               /* at least the full screen height */
+  display: flex;                   /* flexbox lets us center things easily */
+  justify-content: center;         /* center horizontally */
+  align-items: center;             /* center vertically */
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* ---------- Calculator body ---------- */
+.calculator {
+  width: 340px;
+  padding: 20px;
+  background: var(--calc-bg);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);  /* soft shadow for depth */
+}
+
+/* ---------- Display (screen) ---------- */
+.display {
+  background: var(--display-bg);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  min-height: 110px;
+  text-align: right;               /* numbers align to the right like a real calculator */
+  display: flex;
+  flex-direction: column;          /* stack the expression above the result */
+  justify-content: flex-end;       /* push content to the bottom of the screen */
+  overflow: hidden;                /* hide anything that spills out */
+}
+
+/* Small line showing what you typed */
+.expression {
+  min-height: 24px;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* Big line showing the number/answer */
+.result {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--accent);
+  word-break: break-all;           /* long numbers wrap instead of overflowing */
+}
+
+/* ---------- Button grid ----------
+   4 equal columns, with space between buttons. */
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* ---------- All buttons ---------- */
+button {
+  padding: 20px 0;
+  font-size: 1.4rem;
+  color: var(--text);
+  background: var(--btn-bg);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;  /* smooth hover/click animation */
+}
+
+/* Lighter color when the mouse is over a button */
+button:hover {
+  background: var(--btn-hover);
+}
+
+/* Button shrinks slightly when clicked, so it feels pressed */
+button:active {
+  transform: scale(0.95);
+}
+
+/* ---------- Operator buttons (÷ × − +) ---------- */
+.operator {
+  background: var(--operator-bg);
+}
+.operator:hover {
+  background: var(--operator-hover);
+}
+
+/* ---------- Equals button ---------- */
+.equals {
+  background: var(--equals-bg);
+  color: #0d1a1a;                  /* dark text so it's readable on the light green */
+}
+.equals:hover {
+  background: var(--accent);
+}
+
+/* ---------- Zero button ----------
+   Spans 2 columns so it's twice as wide. */
+.zero {
+  grid-column: span 2;
+}
