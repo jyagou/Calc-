@@ -137,6 +137,21 @@ function percent() {
   updateDisplay();
 }
 
+// ---------- Backspace: delete the last typed digit ----------
+function deleteLast() {
+  // Don't edit a finished answer or an error message
+  if (shouldResetInput || currentInput === "Error") return;
+
+  // Remove the last character: "123" -> "12"
+  currentInput = currentInput.slice(0, -1);
+
+  // If nothing is left (or only "-" is left), go back to "0"
+  if (currentInput === "" || currentInput === "-") {
+    currentInput = "0";
+  }
+  updateDisplay();
+}
+
 // ---------- 13. Listen for button clicks ----------
 // One listener on the whole grid handles every button (this is called
 // "event delegation"). e.target.closest("button") finds which one was clicked.
@@ -164,3 +179,33 @@ buttonsEl.addEventListener("click", (e) => {
 
 // Show the starting "0" when the page loads
 updateDisplay();
+
+// ---------- Keyboard support ----------
+// "keydown" fires every time a key is pressed anywhere on the page.
+document.addEventListener("keydown", (e) => {
+  const key = e.key; // the key that was pressed, e.g. "7", "+", "Enter"
+
+  if (/^[0-9]$/.test(key)) {
+    inputNumber(key);                 // digits 0-9
+  } else if (key === ".") {
+    inputDecimal();
+  } else if (key === "+") {
+    chooseOperator("+");
+  } else if (key === "-") {
+    chooseOperator("−");              // our button uses the "−" symbol, not "-"
+  } else if (key === "*") {
+    chooseOperator("×");              // keyboard has *, our button uses ×
+  } else if (key === "/") {
+    e.preventDefault();               // stops "/" from opening browser quick-find
+    chooseOperator("÷");
+  } else if (key === "Enter" || key === "=") {
+    e.preventDefault();               // stops Enter from "clicking" a focused button again
+    pressEquals();
+  } else if (key === "Backspace") {
+    deleteLast();
+  } else if (key === "Escape" || key.toLowerCase() === "c") {
+    clearAll();
+  } else if (key === "%") {
+    percent();
+  }
+});
