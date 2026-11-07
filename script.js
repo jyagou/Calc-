@@ -1,3 +1,4 @@
+// This is the JavaScript for the calculator. It handles all the logic and updates the display. It does not handle any styling, which is done in style.css.
 // ---------- 1. Grab elements from the HTML ----------
 // We store them in variables so we can update them later.
 const expressionEl = document.getElementById("expression"); // small line
