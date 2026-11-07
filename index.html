@@ -15,64 +15,135 @@
 </head>
 <body>
 
+      <!-- Sidebar: buttons for switching modes -->
+    <nav class="sidebar">
+      <h1 class="brand">Calc+</h1>
+      <p class="tagline">More than just numbers.</p>
+      <!-- data-mode says which section each button shows -->
+      <button class="nav-item active" data-mode="normal">🧮 Normal</button>
+      <button class="nav-item" data-mode="discount">🏷️ Discount</button>
+      <button class="nav-item" data-mode="tip">👥 Tip &amp; Split</button>
+    </nav>
+
   <!-- Container: wraps the whole calculator so we can center and style it as one box -->
   <div class="calculator">
 
     <!-- Top bar: app name on the left, theme toggle button on the right -->
     <div class="topbar">
-      <span class="title">Calc+</span>
-      <!-- aria-label describes the button for screen readers (icon-only buttons need it) -->
-      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark or light mode">☀️</button>
-    </div>
+            <span class="title">Calc+</span>
+            <!-- aria-label describes the button for screen readers (icon-only buttons need it) -->
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark or light mode">☀️</button>
+          </div>
 
-    <!-- Display: the screen at the top of the calculator -->
-    <div class="display">
-      <!-- Expression: the small line showing what you typed, e.g. 12 × 8 + 5 -->
-      <div class="expression" id="expression"></div>
+        <section id="mode-normal" class="mode">   <!-- NEW opening tag -->
 
-      <!-- Result: the big line showing the current number or answer -->
-      <div class="result" id="result">0</div>
-    </div>
+          <!-- Display: the screen at the top of the calculator -->
+          <div class="display">
+            <!-- Expression: the small line showing what you typed, e.g. 12 × 8 + 5 -->
+            <div class="expression" id="expression"></div>
 
-    <!-- Buttons: holds all 19 buttons; CSS grid will arrange them in 4 columns -->
-    <div class="buttons">
+            <!-- Result: the big line showing the current number or answer -->
+            <div class="result" id="result">0</div>
+          </div>
 
-      <!-- Row 1: clear, change sign, percent, divide -->
-      <!-- data-action tells JavaScript what special job the button does -->
-      <button data-action="clear">C</button>
-      <button data-action="sign">+/-</button>
-      <button data-action="percent">%</button>
-      <!-- data-operator tells JavaScript this button is a math operator -->
-      <button data-operator="÷" class="operator">÷</button>
+            <!-- Buttons: holds all 19 buttons; CSS grid will arrange them in 4 columns -->
+            <div class="buttons">
 
-      <!-- Row 2 -->
-      <!-- data-number tells JavaScript which digit the button types -->
-      <button data-number="7">7</button>
-      <button data-number="8">8</button>
-      <button data-number="9">9</button>
-      <button data-operator="×" class="operator">×</button>
+              <!-- Row 1: clear, change sign, percent, divide -->
+              <!-- data-action tells JavaScript what special job the button does -->
+              <button data-action="clear">C</button>
+              <button data-action="sign">+/-</button>
+              <button data-action="percent">%</button>
+              <!-- data-operator tells JavaScript this button is a math operator -->
+              <button data-operator="÷" class="operator">÷</button>
 
-      <!-- Row 3 -->
-      <button data-number="4">4</button>
-      <button data-number="5">5</button>
-      <button data-number="6">6</button>
-      <button data-operator="−" class="operator">−</button>
+              <!-- Row 2 -->
+              <!-- data-number tells JavaScript which digit the button types -->
+              <button data-number="7">7</button>
+              <button data-number="8">8</button>
+              <button data-number="9">9</button>
+              <button data-operator="×" class="operator">×</button>
 
-      <!-- Row 4 -->
-      <button data-number="1">1</button>
-      <button data-number="2">2</button>
-      <button data-number="3">3</button>
-      <button data-operator="+" class="operator">+</button>
+              <!-- Row 3 -->
+              <button data-number="4">4</button>
+              <button data-number="5">5</button>
+              <button data-number="6">6</button>
+              <button data-operator="−" class="operator">−</button>
 
-      <!-- Row 5 -->
-      <!-- class="zero" lets CSS make this button twice as wide -->
-      <button data-number="0" class="zero">0</button>
-      <!-- Decimal point button -->
-      <button data-action="decimal">.</button>
-      <!-- Equals button: calculates the answer -->
-      <button data-action="equals" class="equals">=</button>
+              <!-- Row 4 -->
+              <button data-number="1">1</button>
+              <button data-number="2">2</button>
+              <button data-number="3">3</button>
+              <button data-operator="+" class="operator">+</button>
 
-    </div>
+              <!-- Row 5 -->
+              <!-- class="zero" lets CSS make this button twice as wide -->
+              <button data-number="0" class="zero">0</button>
+              <!-- Decimal point button -->
+              <button data-action="decimal">.</button>
+              <!-- Equals button: calculates the answer -->
+              <button data-action="equals" class="equals">=</button>
+
+            </div>
+
+        </section>  <!-- NEW closing tag -->
+        
+         <!-- Discount mode (hidden until selected) -->
+
+            <section id="mode-discount" class="mode" hidden>
+              <h2 class="mode-title">Discount Calculator</h2>
+
+              <label class="field">
+                Original Price (₱)
+                <input type="number" id="discount-price" min="0" step="0.01" placeholder="2000">
+              </label>
+
+              <label class="field">
+                Discount (%)
+                <input type="number" id="discount-percent" min="0" max="100" step="any" placeholder="20">
+              </label>
+
+              <div class="result-card">
+                <span class="card-label">Sale Price</span>
+                <span class="card-value" id="sale-price">₱0.00</span>
+                <span class="card-note" id="discount-note">Enter a price and a discount.</span>
+              </div>
+            </section>
+
+            <!-- Tip & Split mode (hidden until selected) -->
+            <section id="mode-tip" class="mode" hidden>
+              <h2 class="mode-title">Tip &amp; Split</h2>
+
+              <label class="field">
+                Total Amount (₱)
+                <input type="number" id="tip-bill" min="0" step="0.01" placeholder="1200">
+              </label>
+
+              <div class="field">
+                <span>Tip Percentage</span>
+                <div class="tip-options">
+                  <button class="tip-btn" data-tip="10">10%</button>
+                  <button class="tip-btn active" data-tip="15">15%</button>
+                  <button class="tip-btn" data-tip="20">20%</button>
+                  <input type="number" id="tip-custom" min="0" max="100" step="any" placeholder="Custom">
+                </div>
+              </div>
+
+              <div class="field">
+                <span>Number of People</span>
+                <div class="stepper">
+                  <button id="people-minus" aria-label="Fewer people">−</button>
+                  <span id="people-count">1</span>
+                  <button id="people-plus" aria-label="More people">+</button>
+                </div>
+              </div>
+
+              <div class="result-card">
+                <div class="row"><span>Tip Amount</span><strong id="tip-amount">₱0.00</strong></div>
+                <div class="row"><span>Total (with tip)</span><strong id="tip-total">₱0.00</strong></div>
+                <div class="row"><span>Per Person</span><strong id="tip-per-person">₱0.00</strong></div>
+              </div>
+            </section>
   </div>
 
   <!-- History panel: sits next to the calculator -->

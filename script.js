@@ -99,7 +99,7 @@ function pressEquals() {
 
   // NEW: save this calculation to the history panel
   addToHistory(`${previousValue} ${operator} ${secondNumber}`, String(result));
-  
+
   currentInput = String(result);
   previousValue = null;
   operator = null;
@@ -312,6 +312,128 @@ clearHistoryBtn.addEventListener("click", () => {
 
 // Draw the saved history when the page loads
 renderHistory();
+// ---------- Mode switching (sidebar) ----------
+const navItems = document.querySelectorAll(".nav-item");
+const modeSections = document.querySelectorAll(".mode");
+let currentMode = "normal";   // which mode is showing right now
+
+function switchMode(mode) {
+  currentMode = mode;
+
+  // Show only the section whose id matches, e.g. "mode-discount"
+  modeSections.forEach((section) => {
+    section.hidden = section.id !== `mode-${mode}`;
+  });
+
+  // Highlight the matching sidebar button
+  navItems.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.mode === mode);
+  });
+}
+
+navItems.forEach((btn) => {
+  btn.addEventListener("click", () => switchMode(btn.dataset.mode));
+});
+
+// ---------- Money formatting ----------
+// Turns 1600 into "₱1,600.00"
+function formatPeso(amount) {
+  return amount.toLocaleString("en-PH", { style: "currency", currency: "PHP" });
+}
+
+// ---------- Discount mode ----------
+const priceInput = document.getElementById("discount-price");
+const percentInput = document.getElementById("discount-percent");
+const salePriceEl = document.getElementById("sale-price");
+const discountNoteEl = document.getElementById("discount-note");
+
+function updateDiscount() {
+  const price = parseFloat(priceInput.value);
+  const percent = parseFloat(percentInput.value);
+
+  // Invalid or empty input: show zero and a hint instead of weird numbers
+  if (isNaN(price) || isNaN(percent) || price < 0 || percent < 0 || percent > 100) {
+    salePriceEl.textContent = formatPeso(0);
+    discountNoteEl.textContent = "Enter a price and a discount from 0 to 100.";
+    return;
+  }
+
+  const saved = (price * percent) / 100;   // how much you save
+  const sale = price - saved;              // what you pay
+
+  salePriceEl.textContent = formatPeso(sale);
+  discountNoteEl.textContent = `You save ${formatPeso(saved)} (${percent}%)`;
+}
+
+// "input" fires on every keystroke, so results update live
+priceInput.addEventListener("input", updateDiscount);
+percentInput.addEventListener("input", updateDiscount);
+
+// ---------- Tip & Split mode ----------
+const billInput = document.getElementById("tip-bill");
+const tipButtons = document.querySelectorAll(".tip-btn");
+const customTipInput = document.getElementById("tip-custom");
+const peopleCountEl = document.getElementById("people-count");
+const tipAmountEl = document.getElementById("tip-amount");
+const tipTotalEl = document.getElementById("tip-total");
+const perPersonEl = document.getElementById("tip-per-person");
+
+let tipPercent = 15;   // matches the button marked "active" in the HTML
+let people = 1;
+
+function updateTip() {
+  const bill = parseFloat(billInput.value);
+
+  // Invalid input: show zeros
+  if (isNaN(bill) || bill < 0 || isNaN(tipPercent) || tipPercent < 0) {
+    tipAmountEl.textContent = formatPeso(0);
+    tipTotalEl.textContent = formatPeso(0);
+    perPersonEl.textContent = formatPeso(0);
+    return;
+  }
+
+  const tip = (bill * tipPercent) / 100;
+  const total = bill + tip;
+
+  tipAmountEl.textContent = formatPeso(tip);
+  tipTotalEl.textContent = formatPeso(total);
+  perPersonEl.textContent = formatPeso(total / people);
+}
+
+// Preset buttons (10%, 15%, 20%)
+tipButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    tipPercent = parseFloat(btn.dataset.tip);
+    customTipInput.value = "";                       // clear the custom box
+    tipButtons.forEach((b) => b.classList.toggle("active", b === btn));
+    updateTip();
+  });
+});
+
+// Custom tip box: deselect the presets and use the typed number
+customTipInput.addEventListener("input", () => {
+  tipPercent = parseFloat(customTipInput.value);
+  tipButtons.forEach((b) => b.classList.remove("active"));
+  updateTip();
+});
+
+// People stepper: keep it between 1 and 50
+document.getElementById("people-minus").addEventListener("click", () => {
+  if (people > 1) people--;
+  peopleCountEl.textContent = people;
+  updateTip();
+});
+document.getElementById("people-plus").addEventListener("click", () => {
+  if (people < 50) people++;
+  peopleCountEl.textContent = people;
+  updateTip();
+});
+
+billInput.addEventListener("input", updateTip);
+
+// Start both modes with their default display
+updateDiscount();
+updateTip();
 
 // Show the starting "0" when the page loads
 updateDisplay();
@@ -319,7 +441,11 @@ updateDisplay();
 // ---------- Keyboard support ----------
 // "keydown" fires every time a key is pressed anywhere on the page.
 document.addEventListener("keydown", (e) => {
-  const key = e.key; // the key that was pressed, e.g. "7", "+", "Enter"
+  // NEW: only handle calculator keys while in Normal mode
+  if (currentMode !== "normal") return;
+
+  const key = e.key;
+  // ... the rest stays the same
 
   if (/^[0-9]$/.test(key)) {
     inputNumber(key);                 // digits 0-9
@@ -344,4 +470,6 @@ document.addEventListener("keydown", (e) => {
   } else if (key === "%") {
     percent();
   }
+
+  
 });

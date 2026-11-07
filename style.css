@@ -263,3 +263,154 @@ body,
   text-align: center;
   margin-top: 20px;
 }
+
+/* Makes the "hidden" attribute always win, so inactive modes disappear */
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 200px;
+  padding: 20px;
+  background: var(--calc-bg);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: background 0.3s;
+}
+
+.brand {
+  font-size: 1.4rem;
+}
+
+.tagline {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+/* Sidebar buttons: override the big calculator-button style */
+.nav-item {
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 1rem;
+  background: transparent;
+  border-radius: 12px;
+}
+.nav-item:hover {
+  background: var(--btn-bg);
+}
+/* The active one comes AFTER hover so it keeps its color */
+.nav-item.active {
+  background: var(--operator-bg);
+}
+
+/* ---------- Shared styles for the extra modes ---------- */
+.mode-title {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+}
+
+/* A label + its input, stacked */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1.1rem;
+  color: var(--text);
+  background: var(--display-bg);
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);   /* highlight the box you're typing in */
+}
+
+/* The green result box */
+.result-card {
+  background: var(--display-bg);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.card-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.card-value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.card-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* One line like "Tip Amount ........ ₱180.00" */
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ---------- Tip buttons ---------- */
+.tip-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 1.5fr;
+  gap: 8px;
+}
+.tip-btn {
+  padding: 10px 0;
+  font-size: 1rem;
+  border-radius: 12px;
+}
+.tip-btn:hover {
+  background: var(--btn-hover);
+}
+.tip-btn.active {
+  background: var(--operator-bg);
+}
+.tip-options input[type="number"] {
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+/* ---------- People stepper (− 3 +) ---------- */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--display-bg);
+  border-radius: 12px;
+  padding: 4px;
+}
+.stepper button {
+  width: 44px;
+  height: 40px;
+  padding: 0;
+  font-size: 1.2rem;
+  border-radius: 10px;
+}
+.stepper button:hover {
+  background: var(--btn-hover);
+}
+#people-count {
+  font-size: 1.2rem;
+  color: var(--text);
+}
