@@ -35,6 +35,9 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: "Segoe UI", Arial, sans-serif;
+  gap: 20px;            /* space between calculator and history */
+  flex-wrap: wrap;      /* stack them on narrow screens */
+  padding: 20px;        /* breathing room around the edges */
 }
 
 /* ---------- Calculator body ---------- */
@@ -174,4 +177,89 @@ body,
 .calculator,
 .display {
   transition: background 0.3s, color 0.3s;
+}
+
+/* ---------- History panel ---------- */
+.history {
+  width: 300px;
+  height: 560px;                 /* fixed height, so the list scrolls inside */
+  padding: 20px;
+  background: var(--calc-bg);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;        /* header on top, list fills the rest */
+  transition: background 0.3s;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.history-header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Small text-style button, overrides the general "button" style */
+.clear-history {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: transparent;
+  border-radius: 8px;
+}
+.clear-history:hover {
+  background: var(--btn-bg);
+  color: var(--text);
+}
+
+/* The scrollable list */
+.history-list {
+  list-style: none;              /* remove the bullet points */
+  overflow-y: auto;              /* scroll when there are many entries */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Each history entry is a button, so it can be clicked or tabbed to */
+.history-item {
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 1rem;
+  background: var(--display-bg);
+  border-radius: 14px;
+}
+.history-item:hover {
+  background: var(--btn-hover);
+}
+
+.history-expression {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.history-result {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--accent);
+  word-break: break-all;
+}
+.history-time {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Message shown when the list is empty */
+.history-empty {
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 20px;
 }

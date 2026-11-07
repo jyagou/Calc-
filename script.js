@@ -96,6 +96,10 @@ function pressEquals() {
   if (result === "Error") return showError();
 
   expression = `${previousValue} ${operator} ${secondNumber} =`;
+
+  // NEW: save this calculation to the history panel
+  addToHistory(`${previousValue} ${operator} ${secondNumber}`, String(result));
+  
   currentInput = String(result);
   previousValue = null;
   operator = null;
@@ -208,6 +212,106 @@ themeToggle.addEventListener("click", () => {
     localStorage.setItem("theme", next);  // remembered even after refresh
   } catch (err) {}
 });
+
+// ---------- History ----------
+const historyListEl = document.getElementById("history-list");
+const clearHistoryBtn = document.getElementById("clear-history");
+const MAX_HISTORY = 50;   // keep only the 50 newest calculations
+
+// Each entry looks like: { expression: "12 × 8", result: "96", time: "2026-11-07T..." }
+let history = [];
+
+// Load saved history when the page opens.
+// try/catch protects us if storage is blocked or the saved data is broken.
+try {
+  const saved = JSON.parse(localStorage.getItem("calcHistory"));
+  if (Array.isArray(saved)) history = saved;
+} catch (err) {}
+
+// Save the history array to the browser (localStorage only stores text,
+// so JSON.stringify turns the array into text first).
+function saveHistory() {
+  try {
+    localStorage.setItem("calcHistory", JSON.stringify(history));
+  } catch (err) {}
+}
+
+// Add a new calculation to the TOP of the list.
+function addToHistory(expressionText, resultText) {
+  history.unshift({
+    expression: expressionText,
+    result: resultText,
+    time: new Date().toISOString(),
+  });
+  history = history.slice(0, MAX_HISTORY);  // drop the oldest if over the limit
+  saveHistory();
+  renderHistory();
+}
+
+// Redraw the whole list from the history array.
+function renderHistory() {
+  historyListEl.innerHTML = "";   // empty the list first
+
+  // Nothing saved yet? Show a friendly message.
+  if (history.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "history-empty";
+    empty.textContent = "No calculations yet.";
+    historyListEl.appendChild(empty);
+    return;
+  }
+
+  history.forEach((item) => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.className = "history-item";
+
+    // Three lines: expression, result, time.
+    // textContent (not innerHTML) is the safe way to put text on the page.
+    const exprSpan = document.createElement("span");
+    exprSpan.className = "history-expression";
+    exprSpan.textContent = `${item.expression} =`;
+
+    const resultSpan = document.createElement("span");
+    resultSpan.className = "history-result";
+    resultSpan.textContent = item.result;
+
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "history-time";
+    timeSpan.textContent = new Date(item.time).toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    btn.append(exprSpan, resultSpan, timeSpan);
+
+    // Clicking an entry loads its result back into the calculator,
+    // so you can keep calculating from it.
+    btn.addEventListener("click", () => {
+      currentInput = item.result;
+      expression = "";
+      previousValue = null;
+      operator = null;
+      shouldResetInput = true;   // next digit starts a new number
+      updateDisplay();
+    });
+
+    li.appendChild(btn);
+    historyListEl.appendChild(li);
+  });
+}
+
+// "Clear All" button
+clearHistoryBtn.addEventListener("click", () => {
+  history = [];
+  saveHistory();
+  renderHistory();
+});
+
+// Draw the saved history when the page loads
+renderHistory();
 
 // Show the starting "0" when the page loads
 updateDisplay();

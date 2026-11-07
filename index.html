@@ -75,6 +75,17 @@
     </div>
   </div>
 
+  <!-- History panel: sits next to the calculator -->
+    <aside class="history">
+      <div class="history-header">
+        <h2>History</h2>
+        <!-- Wipes all saved calculations -->
+        <button id="clear-history" class="clear-history">Clear All</button>
+      </div>
+      <!-- JavaScript fills this list with one <li> per calculation -->
+      <ul id="history-list" class="history-list"></ul>
+    </aside>
+
   <!-- Connects our JavaScript file. It goes at the bottom so the HTML loads first -->
   <script src="script.js"></script>
 </body>
