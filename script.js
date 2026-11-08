@@ -219,7 +219,7 @@ buttonsEl.addEventListener("click", (e) => {
         document.documentElement.setAttribute("data-theme", theme);
 
         // The round button shows the mode you'd switch TO
-        themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+        // themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
 
         // Highlight the chosen button in the 3-way switch
         appearanceBtns.forEach((btn) => {
@@ -374,10 +374,17 @@ function renderHistory() {
 }
 
 // "Clear All" button
-clearHistoryBtn.addEventListener("click", () => {
+function clearHistory() {
   history = [];
   saveHistory();
   renderHistory();
+}
+
+clearHistoryBtn.addEventListener("click", clearHistory);
+
+// The one in Settings asks first, since it can't be undone
+document.getElementById("clear-history-setting").addEventListener("click", () => {
+  if (confirm("Clear all calculation history?")) clearHistory();
 });
 
 // Draw the saved history when the page loads
@@ -590,10 +597,12 @@ try {
   voiceOn = localStorage.getItem("voiceOn") === "true";
 } catch (err) {}
 
+const voiceSetting = document.getElementById("setting-voice");
+
 // Show 🔊 when on and 🔇 when off
 function updateVoiceButton() {
-  voiceToggle.textContent = voiceOn ? "🔊" : "🔇";
   voiceToggle.setAttribute("aria-pressed", voiceOn);
+  voiceSetting.checked = voiceOn;   // keep the Settings checkbox in sync
 }
 
 // ---------- Number to words ("101" -> "one hundred and one") ----------
@@ -679,22 +688,27 @@ function toSpeakable(value) {
   return String(value).replace(/^-/, "negative ");
 }
 
-voiceToggle.addEventListener("click", () => {
-  voiceOn = !voiceOn;
+// One function does the work, so the top button and the checkbox always agree
+function setVoice(on) {
+  voiceOn = on;
   try {
-    localStorage.setItem("voiceOn", voiceOn);
+    localStorage.setItem("voiceOn", on);
   } catch (err) {}
   updateVoiceButton();
 
-
-  if (voiceOn) {
+  if (on) {
     speak("Voice on");   // a short test, so you hear that it works
   } else {
-    window.speechSynthesis.cancel();   // voice turned off: stop speaking right away
-    voiceCardEl.classList.remove("speaking");   // NEW
+    if (speechSupported) window.speechSynthesis.cancel();   // stop speaking right away
+    voiceCardEl.classList.remove("speaking");
   }
+}
 
-});
+voiceToggle.addEventListener("click", () => setVoice(!voiceOn));
+voiceSetting.addEventListener("change", () => setVoice(voiceSetting.checked));
+
+// No speech support? Hide the checkbox row too
+if (!speechSupported) voiceSetting.closest("label").hidden = true;
 
 updateVoiceButton();
 
@@ -922,6 +936,21 @@ swatches.forEach((swatch) => {
       localStorage.setItem("palette", swatch.dataset.palette);
     } catch (err) {}
   });
+});
+
+// ---------- Reset everything ----------
+document.getElementById("reset-all").addEventListener("click", () => {
+  if (!confirm("Reset Calc+? This clears your history and saved settings.")) return;
+
+  // Remove only OUR keys. localStorage.clear() could also wipe other projects
+  // that share the same storage (for example, other pages on your GitHub Pages site).
+  ["calcHistory", "themeMode", "theme", "palette", "voiceOn", "ratesCache"].forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (err) {}
+  });
+
+  location.reload();   // reload so everything restarts from the defaults
 });
 
 // Show the starting "0" when the page loads

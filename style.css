@@ -942,3 +942,64 @@ kbd {
   background: var(--btn-bg);
   border-radius: 6px;
 }
+/* ---------- Icons ---------- */
+.icon {
+  width: 1.2em;
+  height: 1.2em;
+  fill: none;
+  stroke: currentColor;          /* takes the text color, so themes just work */
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;                /* don't squish inside flex rows */
+}
+
+/* Lay out buttons that have an icon (and sometimes text) */
+.nav-item,
+.read-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.read-btn {
+  justify-content: center;
+  gap: 8px;
+}
+.theme-toggle,
+.appearance-btn {
+  display: grid;
+  place-items: center;
+}
+.voice-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Voice button: show the right icon for on/off (JS already sets aria-pressed) */
+#voice-toggle[aria-pressed="true"] .icon-voice-off,
+#voice-toggle:not([aria-pressed="true"]) .icon-voice-on {
+  display: none;
+}
+
+/* Theme button: show the mode you'd switch TO (sun while dark, moon while light) */
+:root[data-theme="dark"] .icon-moon,
+:root:not([data-theme="dark"]) .icon-sun {
+  display: none;
+}
+
+/* ---------- Settings buttons ---------- */
+.setting-btn {
+  width: 100%;
+  padding: 12px 0;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  background: var(--btn-bg);
+  border-radius: 12px;
+}
+.setting-btn:hover {
+  background: var(--btn-hover);
+}
+.setting-btn.danger {
+  color: #e5484d;
+}
