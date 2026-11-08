@@ -316,6 +316,8 @@ renderHistory();
 const navItems = document.querySelectorAll(".nav-item");
 const modeSections = document.querySelectorAll(".mode");
 let currentMode = "normal";   // which mode is showing right now
+// The History panel (the <aside class="history"> in the HTML)
+const historyPanel = document.querySelector(".history");
 
 function switchMode(mode) {
   currentMode = mode;
@@ -324,6 +326,11 @@ function switchMode(mode) {
   modeSections.forEach((section) => {
     section.hidden = section.id !== `mode-${mode}`;
   });
+  
+  // NEW: show the History panel only in Normal mode
+  historyPanel.classList.toggle("invisible", mode !== "normal");
+  // historyPanel.hidden  = mode !== "normal" 
+
 
   // Highlight the matching sidebar button
   navItems.forEach((btn) => {
