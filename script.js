@@ -107,7 +107,7 @@ function pressEquals() {
   updateDisplay();
 
   // NEW: read the answer out loud
-  speak(`The result is ${toSpeakable(currentInput)}`);
+  speak(`The result is ${numberToWords(currentInput)}`);
 }
 
 
@@ -480,13 +480,81 @@ function updateVoiceButton() {
   voiceToggle.setAttribute("aria-pressed", voiceOn);
 }
 
+// ---------- Number to words ("101" -> "one hundred and one") ----------
+const ones = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+  "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+  "seventeen", "eighteen", "nineteen"];
+const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+const scales = ["", "thousand", "million", "billion", "trillion"];
+
+// Converts 1-999 to words, e.g. 101 -> "one hundred and one"
+function chunkToWords(n) {
+  let words = "";
+  if (n >= 100) {
+    words = ones[Math.floor(n / 100)] + " hundred";
+    n %= 100;
+    if (n > 0) words += " and ";
+  }
+  if (n >= 20) {
+    words += tens[Math.floor(n / 10)];
+    if (n % 10) words += "-" + ones[n % 10];
+  } else if (n > 0) {
+    words += ones[n];
+  }
+  return words;
+}
+
+// Converts a whole number by working through it 3 digits at a time
+function integerToWords(n) {
+  if (n === 0) return "zero";
+  const parts = [];
+  let scaleIndex = 0;
+  while (n > 0) {
+    const chunk = n % 1000;
+    if (chunk > 0) {
+      const words = chunkToWords(chunk);
+      parts.unshift(scales[scaleIndex] ? `${words} ${scales[scaleIndex]}` : words);
+    }
+    n = Math.floor(n / 1000);
+    scaleIndex++;
+  }
+  return parts.join(" ");
+}
+
+// Handles negatives and decimals: "-12.5" -> "negative twelve point five"
+function numberToWords(value) {
+  const text = String(value);
+  // Not a plain number (like "Error" or "1e+21")? Say it as it is.
+  if (!/^-?\d+(\.\d+)?$/.test(text)) return text;
+
+  const negative = text.startsWith("-");
+  const [intPart, decPart] = text.replace("-", "").split(".");
+  if (intPart.length > 15) return text;   // too big to say safely
+
+  let words = integerToWords(parseInt(intPart, 10));
+  if (decPart) {
+    // Decimals are read one digit at a time: .25 -> "two five"
+    words += " point " + decPart.split("").map((d) => ones[Number(d)]).join(" ");
+  }
+  return (negative ? "negative " : "") + words;
+}
+
 // Say something out loud (does nothing if the voice is off)
+const voiceCardEl = document.getElementById("voice-card");
+const voiceTextEl = document.getElementById("voice-text");
+
 function speak(text, force = false) {
-  if (!speechSupported || !voiceOn && !force) return;
+  if (!speechSupported || (!voiceOn && !force)) return;
 
   window.speechSynthesis.cancel();   // stop anything still being said
+  voiceTextEl.textContent = text;    // show the sentence on the card
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "en-US";
+  // Animate the wave only while the voice is actually talking
+  utterance.onstart = () => voiceCardEl.classList.add("speaking");
+  utterance.onend = () => voiceCardEl.classList.remove("speaking");
+  utterance.onerror = () => voiceCardEl.classList.remove("speaking");
   window.speechSynthesis.speak(utterance);
 }
 
@@ -507,6 +575,7 @@ voiceToggle.addEventListener("click", () => {
     speak("Voice on");   // a short test, so you hear that it works
   } else {
     window.speechSynthesis.cancel();   // voice turned off: stop speaking right away
+    voiceCardEl.classList.remove("speaking");   // NEW
   }
 
 });

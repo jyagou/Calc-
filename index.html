@@ -196,6 +196,9 @@
             </section>  <!-- end of Currency -->
   </div>   <!-- end of .calculator -->
 
+  <!-- Right column: History on top, Voice Readout below -->
+<div class="side-column">
+
   <!-- History panel: sits next to the calculator -->
     <aside class="history">
       <div class="history-header">
@@ -206,6 +209,21 @@
       <!-- JavaScript fills this list with one <li> per calculation -->
       <ul id="history-list" class="history-list"></ul>
     </aside>
+
+    <!-- Voice Readout card: shows what was last spoken -->
+  <section class="voice-card" id="voice-card">
+    <h2 class="voice-title">🔊 Voice Readout</h2>
+    <!-- aria-live lets screen readers announce changes to this text -->
+    <p class="voice-text" id="voice-text" aria-live="polite">
+      Turn the voice on and press = to hear your answer.
+    </p>
+    <!-- 7 bars that animate while speaking -->
+    <div class="wave" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </section>
+
+</div>
 
   <!-- Connects our JavaScript file. It goes at the bottom so the HTML loads first -->
   <script src="script.js"></script>

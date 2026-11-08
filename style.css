@@ -183,7 +183,7 @@ body,
 /* ---------- History panel ---------- */
 .history {
   width: 300px;
-  height: 560px;                 /* fixed height, so the list scrolls inside */
+  height: 420px;                 /* fixed height, so the list scrolls inside */
   padding: 20px;
   background: var(--calc-bg);
   border-radius: 24px;
@@ -649,4 +649,77 @@ input[type="number"]:focus {
   --btn-bg: #f9ddc9;
   --btn-hover: #f3cbb0;
   --accent: #b8372f;
+}
+/* ---------- Right column ---------- */
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Voice Readout card ---------- */
+.voice-card {
+  width: 300px;
+  padding: 20px;
+  background: var(--calc-bg);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: background 0.3s;
+}
+
+.voice-title {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+/* The sentence box */
+.voice-text {
+  min-height: 64px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--display-bg);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+/* ---------- Sound wave ---------- */
+.wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 40px;
+}
+.wave span {
+  width: 5px;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transform: scaleY(0.2);          /* small bars when quiet */
+  transition: transform 0.2s;
+}
+
+/* While speaking, each bar bounces, with a different delay for a wave effect */
+.voice-card.speaking .wave span {
+  animation: wave 0.9s ease-in-out infinite;
+}
+.voice-card.speaking .wave span:nth-child(2) { animation-delay: 0.1s; }
+.voice-card.speaking .wave span:nth-child(3) { animation-delay: 0.2s; }
+.voice-card.speaking .wave span:nth-child(4) { animation-delay: 0.3s; }
+.voice-card.speaking .wave span:nth-child(5) { animation-delay: 0.2s; }
+.voice-card.speaking .wave span:nth-child(6) { animation-delay: 0.1s; }
+.voice-card.speaking .wave span:nth-child(7) { animation-delay: 0s; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.2); }
+  50%      { transform: scaleY(1); }
+}
+
+/* Respect people who turn off animations in their device settings */
+@media (prefers-reduced-motion: reduce) {
+  .voice-card.speaking .wave span {
+    animation: none;
+    transform: scaleY(0.7);
+  }
 }
