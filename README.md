@@ -2,9 +2,10 @@
 
 More than just numbers. A multi-mode calculator built with plain HTML, CSS, and JavaScript, with no frameworks or libraries.
 
-**[Live demo](https://jyagou.github.io/Calc-/)**
+**[Live demo](https://github.com/jyagou/Calc-plus))**
 
 ![Calc+ in dark mode](screenshots/dark.png)
+
 ![Calc+ in light mode](screenshots/light.png)
 
 ## Features
