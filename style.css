@@ -723,3 +723,46 @@ input[type="number"]:focus {
     transform: scaleY(0.7);
   }
 }
+/* ---------- Tabs (Tip Calculator / Split Bill) ---------- */
+.tabs {
+  display: flex;
+  background: var(--display-bg);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  flex: 1;                         /* both tabs share the width equally */
+  padding: 10px 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  background: transparent;
+  border-radius: 10px;
+}
+.tab:hover {
+  background: var(--btn-hover);
+  color: var(--text);
+}
+/* Active comes AFTER hover so the chosen tab keeps its color */
+.tab.active {
+  background: var(--operator-bg);
+  color: var(--operator-text, var(--text));
+}
+/* ---------- Checkbox row ("Include tip") ---------- */
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: var(--text);
+  cursor: pointer;
+}
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--operator-bg);   /* colors the checkbox to match your palette */
+  cursor: pointer;
+}
+

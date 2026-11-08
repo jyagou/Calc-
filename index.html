@@ -136,12 +136,26 @@
             <section id="mode-tip" class="mode" hidden>
               <h2 class="mode-title">Tip &amp; Split</h2>
 
+              <!-- Tabs: data-tab says which view each button opens -->
+              <div class="tabs" role="tablist">
+                <button class="tab active" role="tab" aria-selected="true" data-tab="tip">Tip Calculator</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="split">Split Bill</button>
+              </div>
+
+              <!-- Used by both tabs -->
               <label class="field">
                 Total Amount (₱)
                 <input type="number" id="tip-bill" min="0" step="0.01" placeholder="1200">
               </label>
 
-              <div class="field">
+                            <!-- NEW: checkbox, only on the Split Bill tab -->
+              <label class="check" data-show="split" hidden>
+                <input type="checkbox" id="include-tip">
+                Include tip
+              </label> 
+
+              <!-- CHANGED: data-show removed and an id added. JS now decides when to show it. -->
+              <div class="field" id="tip-field">
                 <span>Tip Percentage</span>
                 <div class="tip-options">
                   <button class="tip-btn" data-tip="10">10%</button>
@@ -151,7 +165,8 @@
                 </div>
               </div>
 
-              <div class="field">
+              <!-- data-show="split": only visible on the Split Bill tab -->
+              <div class="field" data-show="split" hidden>
                 <span>Number of People</span>
                 <div class="stepper">
                   <button id="people-minus" aria-label="Fewer people">−</button>
@@ -159,14 +174,16 @@
                   <button id="people-plus" aria-label="More people">+</button>
                 </div>
               </div>
-              <button id="read-tip" class="read-btn">🔊 Read</button>  <!-- read out -->
 
+              <button id="read-tip" class="read-btn">🔊 Read</button>
+
+              <!-- CHANGED: the Bill Total row is gone. The Total row now covers both tabs. -->
               <div class="result-card">
-                <div class="row"><span>Tip Amount</span><strong id="tip-amount">₱0.00</strong></div>
-                <div class="row"><span>Total (with tip)</span><strong id="tip-total">₱0.00</strong></div>
-                <div class="row"><span>Per Person</span><strong id="tip-per-person">₱0.00</strong></div>
+                <div class="row" id="tip-row"><span>Tip Amount</span><strong id="tip-amount">₱0.00</strong></div>
+                <div class="row"><span id="total-label">Total (with tip)</span><strong id="tip-total">₱0.00</strong></div>
+                <div class="row" data-show="split" hidden><span>Per Person</span><strong id="tip-per-person">₱0.00</strong></div>
               </div>
-            </section>  <!-- end of Tip & Split -->
+            </section><!-- end of Tip & Split -->
 
                         <!-- Currency mode (hidden until selected) -->
             <section id="mode-currency" class="mode" hidden>

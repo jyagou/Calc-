@@ -401,29 +401,52 @@ let tipPercent = 15;   // matches the button marked "active" in the HTML
 let people = 1;
 let tipSpeech = "";
 
+const includeTipEl = document.getElementById("include-tip");
+const tipFieldEl = document.getElementById("tip-field");
+const tipRowEl = document.getElementById("tip-row");
+const totalLabelEl = document.getElementById("total-label");
+let tipMode = "tip";   // which tab is open: "tip" or "split"
+
 function updateTip() {
   const bill = parseFloat(billInput.value);
 
+  // Is the tip part of the math right now?
+  // Yes on the Tip tab, and on the Split tab only if "Include tip" is ticked.
+  const useTip = tipMode === "tip" || includeTipEl.checked;
+
+  // Show or hide the tip buttons and the Tip Amount row to match
+  tipFieldEl.hidden = !useTip;
+  tipRowEl.hidden = !useTip;
+  totalLabelEl.textContent = useTip ? "Total (with tip)" : "Bill Total";
+
+  const badTip = useTip && (isNaN(tipPercent) || tipPercent < 0);
+
   // Invalid input: show zeros
-  if (isNaN(bill) || bill < 0 || isNaN(tipPercent) || tipPercent < 0) {
+  if (isNaN(bill) || bill < 0 || badTip) {
     tipAmountEl.textContent = formatPeso(0);
     tipTotalEl.textContent = formatPeso(0);
     perPersonEl.textContent = formatPeso(0);
-    tipSpeech = "";   // NEW: nothing valid to read
+    tipSpeech = "";
     return;
   }
 
-  const tip = (bill * tipPercent) / 100;
+  const tip = useTip ? (bill * tipPercent) / 100 : 0;   // no tip = 0
   const total = bill + tip;
-  const perPerson = total / people;   // NEW: store it, since we use it twice
-
 
   tipAmountEl.textContent = formatPeso(tip);
   tipTotalEl.textContent = formatPeso(total);
-  perPersonEl.textContent = formatPeso(perPerson);
 
-  // NEW
-  tipSpeech = `The tip is ${tip.toFixed(2)} pesos. The total is ${total.toFixed(2)} pesos. Each person pays ${perPerson.toFixed(2)} pesos.`;
+  if (tipMode === "tip") {
+    tipSpeech = `The tip is ${tip.toFixed(2)} pesos. The total is ${total.toFixed(2)} pesos.`;
+  } else {
+    const perPerson = total / people;   // the tip is added BEFORE dividing
+    perPersonEl.textContent = formatPeso(perPerson);
+
+    const group = `${people} ${people === 1 ? "person" : "people"}`;
+    tipSpeech = useTip
+      ? `The total with tip is ${total.toFixed(2)} pesos. Split between ${group}, each pays ${perPerson.toFixed(2)} pesos.`
+      : `The bill is ${total.toFixed(2)} pesos. Split between ${group}, each pays ${perPerson.toFixed(2)} pesos.`;
+  }
 }
 
 // Preset buttons (10%, 15%, 20%)
@@ -456,10 +479,39 @@ document.getElementById("people-plus").addEventListener("click", () => {
 });
 
 billInput.addEventListener("input", updateTip);
+// Ticking or unticking "Include tip" recalculates
+includeTipEl.addEventListener("change", updateTip);
 
 // Start both modes with their default display
 updateDiscount();
 updateTip();
+
+// ---------- Tip & Split tabs ----------
+const tipTabs = document.querySelectorAll(".tab");
+
+function setTipMode(mode) {
+  tipMode = mode;
+
+  // Highlight the chosen tab
+  tipTabs.forEach((tab) => {
+    const isActive = tab.dataset.tab === mode;
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-selected", isActive);
+  });
+
+  // Show only the fields and rows that belong to this tab
+  document.querySelectorAll("#mode-tip [data-show]").forEach((el) => {
+    el.hidden = el.dataset.show !== mode;
+  });
+
+  updateTip();   // recalculate, so results and the Read sentence match this tab
+}
+
+tipTabs.forEach((tab) => {
+  tab.addEventListener("click", () => setTipMode(tab.dataset.tab));
+});
+
+setTipMode("tip");   // start on the Tip Calculator tab
 
 // ---------- Voice readout ----------
 const voiceToggle = document.getElementById("voice-toggle");
