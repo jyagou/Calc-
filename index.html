@@ -26,6 +26,19 @@
       <button class="nav-item" data-mode="currency">💱 Currency</button>
     </nav>
 
+        <!-- Theme picker: each swatch switches the color palette -->
+    <div class="theme-picker">
+      <p class="picker-title">Theme</p>
+      <div class="swatches">
+        <!-- data-palette is the name our CSS and JS look for -->
+        <button class="swatch active" data-palette="default" aria-label="Default theme" title="Default"></button>
+        <button class="swatch" data-palette="pastel" aria-label="Pastel theme" title="Pastel"></button>
+        <button class="swatch" data-palette="neon" aria-label="Neon theme" title="Neon"></button>
+        <button class="swatch" data-palette="ocean" aria-label="Ocean theme" title="Ocean"></button>
+        <button class="swatch" data-palette="sunset" aria-label="Sunset theme" title="Sunset"></button>
+      </div>
+    </div> 
+
   <!-- Container: wraps the whole calculator so we can center and style it as one box -->
   <div class="calculator">
 

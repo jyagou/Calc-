@@ -601,6 +601,42 @@ if (!speechSupported) {
   document.querySelectorAll(".read-btn").forEach((btn) => (btn.hidden = true));
 }
 
+// ---------- Color palettes (theme picker) ----------
+const swatches = document.querySelectorAll(".swatch");
+
+// The palette names come straight from the HTML buttons
+const validPalettes = [...swatches].map((s) => s.dataset.palette);
+
+// Sets data-palette on <html>. Our CSS reacts to it and swaps the colors.
+function applyPalette(name) {
+  if (name === "default") {
+    document.documentElement.removeAttribute("data-palette");   // back to the original colors
+  } else {
+    document.documentElement.setAttribute("data-palette", name);
+  }
+
+  // Put the ring on the chosen swatch only
+  swatches.forEach((s) => s.classList.toggle("active", s.dataset.palette === name));
+}
+
+// Load the saved choice. If it's missing or not recognized, use "default".
+let savedPalette = "default";
+try {
+  const stored = localStorage.getItem("palette");
+  if (validPalettes.includes(stored)) savedPalette = stored;
+} catch (err) {}
+applyPalette(savedPalette);
+
+// Clicking a swatch applies and saves it
+swatches.forEach((swatch) => {
+  swatch.addEventListener("click", () => {
+    applyPalette(swatch.dataset.palette);
+    try {
+      localStorage.setItem("palette", swatch.dataset.palette);
+    } catch (err) {}
+  });
+});
+
 // Show the starting "0" when the page loads
 updateDisplay();
 

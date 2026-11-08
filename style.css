@@ -447,3 +447,206 @@ input[type="number"]:focus {
 .swap-btn:hover {
   background: var(--operator-hover);
 }
+/* ---------- Color palettes ----------
+   Each palette only changes the accent colors, so it works with
+   both dark and light mode. Default has no palette, so it uses :root. */
+
+/* Buttons with a colored background use this text color.
+   The fallback keeps the Default palette looking exactly as before. */
+.operator,
+.nav-item.active,
+.tip-btn.active,
+.swap-btn {
+  color: var(--operator-text, var(--text));
+}
+
+/* Pastel (pink and lilac) */
+:root[data-palette="pastel"] {
+  --operator-bg: #a86bb8;
+  --operator-hover: #915aa0;
+  --operator-text: #ffffff;
+  --equals-bg: #c2578a;
+  --equals-hover: #a8487a;
+  --equals-text: #ffffff;
+  --accent: #f0a6d0;            /* result color in dark mode */
+}
+:root[data-theme="light"][data-palette="pastel"] {
+  --accent: #a8487a;            /* darker, so it's readable on light */
+}
+
+/* Neon (electric purple and cyan) */
+:root[data-palette="neon"] {
+  --operator-bg: #5b3df5;
+  --operator-hover: #4a2fd0;
+  --operator-text: #ffffff;
+  --equals-bg: #c026d3;
+  --equals-hover: #a21caf;
+  --equals-text: #ffffff;
+  --accent: #22e5ff;
+}
+:root[data-theme="light"][data-palette="neon"] {
+  --accent: #5b3df5;
+}
+
+/* Ocean (blues) */
+:root[data-palette="ocean"] {
+  --operator-bg: #1e78a8;
+  --operator-hover: #17628a;
+  --operator-text: #ffffff;
+  --equals-bg: #0f5f88;
+  --equals-hover: #0b4c6e;
+  --equals-text: #ffffff;
+  --accent: #6fd3f5;
+}
+:root[data-theme="light"][data-palette="ocean"] {
+  --accent: #0f5f88;
+}
+
+/* Sunset (orange and red) */
+:root[data-palette="sunset"] {
+  --operator-bg: #d9622b;
+  --operator-hover: #bf5120;
+  --operator-text: #ffffff;
+  --equals-bg: #b8372f;
+  --equals-hover: #9c2c26;
+  --equals-text: #ffffff;
+  --accent: #ffb27a;
+}
+:root[data-theme="light"][data-palette="sunset"] {
+  --accent: #b8372f;
+}
+
+/* ---------- Theme picker (sidebar) ---------- */
+.theme-picker {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--btn-bg);   /* thin divider line */
+}
+
+.picker-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.swatches {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Small round color circles. These override the big general button style. */
+.swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* Each swatch shows its palette's colors */
+.swatch[data-palette="default"] { background: linear-gradient(135deg, #3f6b57, #8fe0b5); }
+.swatch[data-palette="pastel"]  { background: linear-gradient(135deg, #a86bb8, #f0a6d0); }
+.swatch[data-palette="neon"]    { background: linear-gradient(135deg, #5b3df5, #22e5ff); }
+.swatch[data-palette="ocean"]   { background: linear-gradient(135deg, #0f5f88, #6fd3f5); }
+.swatch[data-palette="sunset"]  { background: linear-gradient(135deg, #b8372f, #ffb27a); }
+
+/* The chosen swatch gets a ring around it */
+.swatch.active {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+/* Pastel (pink and lilac) */
+:root[data-palette="pastel"] {
+  --bg: #1d1424;
+  --calc-bg: #2a1d35;
+  --display-bg: #170f1d;
+  --btn-bg: #3a2a48;
+  --btn-hover: #4b3760;
+  --operator-bg: #a86bb8;
+  --operator-hover: #915aa0;
+  --operator-text: #ffffff;
+  --equals-bg: #c2578a;
+  --equals-hover: #a8487a;
+  --equals-text: #ffffff;
+  --accent: #f0a6d0;
+}
+:root[data-theme="light"][data-palette="pastel"] {
+  --bg: #fbeaf4;
+  --calc-bg: #ffffff;
+  --display-bg: #fdf3f9;
+  --btn-bg: #f6dcec;
+  --btn-hover: #efc8e0;
+  --accent: #a8487a;
+}
+
+/* Neon (electric purple and cyan) */
+:root[data-palette="neon"] {
+  --bg: #0a0a1f;
+  --calc-bg: #121233;
+  --display-bg: #070718;
+  --btn-bg: #1d1d4a;
+  --btn-hover: #2a2a63;
+  --operator-bg: #5b3df5;
+  --operator-hover: #4a2fd0;
+  --operator-text: #ffffff;
+  --equals-bg: #c026d3;
+  --equals-hover: #a21caf;
+  --equals-text: #ffffff;
+  --accent: #22e5ff;
+}
+:root[data-theme="light"][data-palette="neon"] {
+  --bg: #ecebff;
+  --calc-bg: #ffffff;
+  --display-bg: #f3f2ff;
+  --btn-bg: #e0deff;
+  --btn-hover: #cfccff;
+  --accent: #5b3df5;
+}
+
+/* Ocean (blues) */
+:root[data-palette="ocean"] {
+  --bg: #08161f;
+  --calc-bg: #0f2431;
+  --display-bg: #071118;
+  --btn-bg: #173547;
+  --btn-hover: #214a61;
+  --operator-bg: #1e78a8;
+  --operator-hover: #17628a;
+  --operator-text: #ffffff;
+  --equals-bg: #0f5f88;
+  --equals-hover: #0b4c6e;
+  --equals-text: #ffffff;
+  --accent: #6fd3f5;
+}
+:root[data-theme="light"][data-palette="ocean"] {
+  --bg: #e6f3fa;
+  --calc-bg: #ffffff;
+  --display-bg: #f0f8fc;
+  --btn-bg: #d9ecf6;
+  --btn-hover: #c6e2f1;
+  --accent: #0f5f88;
+}
+
+/* Sunset (orange and red) */
+:root[data-palette="sunset"] {
+  --bg: #1f1109;
+  --calc-bg: #2e1a10;
+  --display-bg: #180d07;
+  --btn-bg: #44281a;
+  --btn-hover: #5a3724;
+  --operator-bg: #d9622b;
+  --operator-hover: #bf5120;
+  --operator-text: #ffffff;
+  --equals-bg: #b8372f;
+  --equals-hover: #9c2c26;
+  --equals-text: #ffffff;
+  --accent: #ffb27a;
+}
+:root[data-theme="light"][data-palette="sunset"] {
+  --bg: #fdeee3;
+  --calc-bg: #ffffff;
+  --display-bg: #fff5ee;
+  --btn-bg: #f9ddc9;
+  --btn-hover: #f3cbb0;
+  --accent: #b8372f;
+}
