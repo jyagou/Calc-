@@ -635,62 +635,179 @@ voiceToggle.addEventListener("click", () => {
 updateVoiceButton();
 
 // ---------- Currency mode ----------
-const rateInput = document.getElementById("rate-input");
+const fromSelect = document.getElementById("from-select");
+const toSelect = document.getElementById("to-select");
 const currencyAmountInput = document.getElementById("currency-amount");
-const fromLabelEl = document.getElementById("from-label");
-const toLabelEl = document.getElementById("to-label");
+const rateInput = document.getElementById("rate-input");
+const rateLabelEl = document.getElementById("rate-label");
 const convertedEl = document.getElementById("converted");
-const rateNoteEl = document.getElementById("rate-note");
+const currencyHintEl = document.getElementById("currency-hint");
+const rateStatusEl = document.getElementById("rate-status");
 
-let fromCurrency = "PHP";
-let toCurrency = "USD";
 let currencySpeech = "";   // the sentence the Read button will say
 
-// Each currency gets its own number format (₱1,000.00 vs $17.50)
-const currencyLocales = { PHP: "en-PH", USD: "en-US" };
+// The currencies we offer. To add one, add a line here and one in ratesPerUSD.
+// "spoken" is what the voice says (full names sound better than codes).
+const currencies = {
+  PHP: { name: "Peso",      spoken: "Philippine pesos" },
+  USD: { name: "US Dollar", spoken: "US dollars" },
+  EUR: { name: "Euro",      spoken: "euros" },
+  GBP: { name: "Pound",     spoken: "British pounds" },
+  JPY: { name: "Yen",       spoken: "Japanese yen" },
+  KRW: { name: "Won",       spoken: "South Korean won" },
+  SGD: { name: "SG Dollar", spoken: "Singapore dollars" },
+  AUD: { name: "AU Dollar", spoken: "Australian dollars" },
+  CAD: { name: "CA Dollar", spoken: "Canadian dollars" },
+  CNY: { name: "Yuan",      spoken: "Chinese yuan" },
+};
 
-// Full names are spoken better than "PHP" or "USD"
-const currencyNames = { PHP: "Philippine pesos", USD: "US dollars" };
+// How many of each currency equal 1 US dollar.
+// These are only rough SAMPLE values for when you're offline.
+// Live rates replace them as soon as they load.
+let ratesPerUSD = {
+  USD: 1, PHP: 62, EUR: 0.92, GBP: 0.79, JPY: 150,
+  KRW: 1400, SGD: 1.34, AUD: 1.52, CAD: 1.38, CNY: 7.2,
+};
 
+// ----- Fill both dropdowns from the list above -----
+Object.entries(currencies).forEach(([code, info]) => {
+  const label = `${code} – ${info.name}`;
+  fromSelect.add(new Option(label, code));   // new Option(text, value)
+  toSelect.add(new Option(label, code));
+});
+fromSelect.value = "PHP";
+toSelect.value = "USD";
+
+// Turns 1234.5 and "USD" into "$1,234.50" (JPY and KRW get no decimals automatically)
 function formatMoney(amount, code) {
-  return amount.toLocaleString(currencyLocales[code], {
-    style: "currency",
-    currency: code,
-  });
+  return amount.toLocaleString("en-US", { style: "currency", currency: code });
 }
 
-function updateCurrency() {
+// ----- The rate between the two chosen currencies -----
+// Both rates are "per 1 USD", so dividing one by the other gives 1 FROM = ? TO.
+function fillRate() {
+  const from = fromSelect.value;
+  const to = toSelect.value;
+  const rate = ratesPerUSD[to] / ratesPerUSD[from];
+
+  rateInput.value = Number(rate.toPrecision(6));   // tidy: 6 significant digits
+  rateLabelEl.textContent = `Exchange Rate (1 ${from} = ? ${to})`;
+}
+
+// ----- Result handling -----
+// Called whenever an input changes, so an old answer never sits next to new inputs.
+function resetResult() {
+  convertedEl.textContent = "—";
+  currencyHintEl.textContent = "Enter an amount, then press Convert.";
+  currencySpeech = "";
+}
+
+function convert() {
   const amount = parseFloat(currencyAmountInput.value);
-  const rate = parseFloat(rateInput.value);   // now means: pesos per 1 dollar
+  const rate = parseFloat(rateInput.value);
+  const from = fromSelect.value;
+  const to = toSelect.value;
 
-  // Labels follow the current direction
-  fromLabelEl.textContent = `Amount in ${fromCurrency}`;
-  toLabelEl.textContent = `Converted to ${toCurrency}`;
-
-  // Invalid input: show zero and a hint instead of NaN
+  // Invalid input: no answer, just a hint (never NaN)
   if (isNaN(amount) || isNaN(rate) || amount < 0 || rate <= 0) {
-    convertedEl.textContent = formatMoney(0, toCurrency);
-    rateNoteEl.textContent = "Enter an amount and a valid rate.";
+    convertedEl.textContent = "—";
+    currencyHintEl.textContent = "Enter an amount and a valid rate.";
     currencySpeech = "";
     return;
   }
 
-  // The rate is "pesos per dollar", so:
-  //   PHP → USD: divide  (pesos ÷ pesos-per-dollar = dollars)
-  //   USD → PHP: multiply (dollars × pesos-per-dollar = pesos)
-  const converted = fromCurrency === "PHP" ? amount / rate : amount * rate;
+  // The rate means "1 FROM = rate TO", so one multiplication works for every pair
+  const converted = amount * rate;
 
-  convertedEl.textContent = formatMoney(converted, toCurrency);
-  rateNoteEl.textContent = `1 USD = ${formatMoney(rate, "PHP")}`;
-
-  currencySpeech = `${amount} ${currencyNames[fromCurrency]} is ${converted.toFixed(2)} ${currencyNames[toCurrency]}.`;
+  convertedEl.textContent = formatMoney(converted, to);
+  currencyHintEl.textContent = `1 ${from} = ${Number(rate.toPrecision(6))} ${to}`;
+  currencySpeech = `${amount} ${currencies[from].spoken} is ${converted.toFixed(2)} ${currencies[to].spoken}.`;
 }
 
-// Swap button: trade the two currencies, then recalculate
-document.getElementById("swap-currency").addEventListener("click", () => {
-  [fromCurrency, toCurrency] = [toCurrency, fromCurrency];
-  updateCurrency();
+// ----- Live rates from a free API (with a safe fallback) -----
+const RATES_URL = "https://open.er-api.com/v6/latest/USD";
+const RATES_CACHE_KEY = "ratesCache";
+const RATES_MAX_AGE_MS = 12 * 60 * 60 * 1000;   // reuse saved rates for 12 hours
+
+// Copy the rates for OUR currencies into ratesPerUSD, then refresh the rate box
+function useRates(apiRates, updatedText) {
+  Object.keys(currencies).forEach((code) => {
+    if (typeof apiRates[code] === "number") ratesPerUSD[code] = apiRates[code];
+  });
+  rateStatusEl.textContent = `Rates updated ${updatedText}`;
+  fillRate();
+}
+
+// "async" lets us wait for the internet with "await" without freezing the page
+async function loadRates() {
+  // 1) Recent saved rates? Use them, so we don't ask the API on every page load.
+  try {
+    const cached = JSON.parse(localStorage.getItem(RATES_CACHE_KEY));
+    if (cached && Date.now() - cached.savedAt < RATES_MAX_AGE_MS) {
+      useRates(cached.rates, cached.updated);
+      return;
+    }
+  } catch (err) {}
+
+  // 2) Otherwise ask the API
+  try {
+    const response = await fetch(RATES_URL);
+    const data = await response.json();
+    if (data.result !== "success") throw new Error("Bad response");
+
+    const updated = data.time_last_update_unix
+      ? new Date(data.time_last_update_unix * 1000).toLocaleDateString()
+      : new Date().toLocaleDateString();
+
+    useRates(data.rates, updated);
+
+    try {
+      localStorage.setItem(
+        RATES_CACHE_KEY,
+        JSON.stringify({ savedAt: Date.now(), updated, rates: data.rates })
+      );
+    } catch (err) {}
+  } catch (err) {
+    // 3) No internet or the API is down: keep the sample rates and say so
+    rateStatusEl.textContent = "Offline: showing sample rates. Type the real rate in the box above.";
+  }
+}
+
+// ----- Events -----
+// Changing a dropdown: load that pair's rate and clear the old answer
+[fromSelect, toSelect].forEach((select) => {
+  select.addEventListener("change", () => {
+    fillRate();
+    resetResult();
+  });
 });
+
+// Typing in the amount or rate box clears the old answer
+[currencyAmountInput, rateInput].forEach((input) => {
+  input.addEventListener("input", resetResult);
+  // Pressing Enter in either box is the same as clicking Convert
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") convert();
+  });
+});
+
+// Swap: trade the two dropdown choices
+document.getElementById("swap-currency").addEventListener("click", () => {
+  [fromSelect.value, toSelect.value] = [toSelect.value, fromSelect.value];
+  fillRate();
+  resetResult();
+});
+
+document.getElementById("convert-btn").addEventListener("click", convert);
+
+document.getElementById("read-currency").addEventListener("click", () => {
+  speak(currencySpeech || "Please enter an amount and press Convert first.", true);
+});
+
+// ----- Start up -----
+fillRate();     // show the sample rate right away
+resetResult();
+loadRates();    // then try to replace it with live rates
 
 // Read button
 document.getElementById("read-currency").addEventListener("click", () => {

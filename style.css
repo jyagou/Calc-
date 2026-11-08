@@ -766,3 +766,67 @@ input[type="number"]:focus {
   cursor: pointer;
 }
 
+/* ---------- Currency dropdowns and Convert button ---------- */
+.currency-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;    /* dropdown on the left, amount on the right */
+  gap: 8px;
+}
+
+select {
+  width: 100%;
+  padding: 12px 10px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--display-bg);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+}
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+/* Without this, the open dropdown list can show light text on a white background */
+select option {
+  background: var(--calc-bg);
+  color: var(--text);
+}
+
+/* The read-only answer box */
+.converted-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--display-bg);
+  border-radius: 12px;
+  word-break: break-all;
+}
+
+.convert-btn {
+  width: 100%;
+  padding: 14px 0;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  background: var(--equals-bg);
+  color: var(--equals-text);
+  border-radius: 14px;
+}
+.convert-btn:hover {
+  background: var(--equals-hover);
+}
+
+/* Small helper text under the buttons */
+.rate-status {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+.rate-status a {
+  color: var(--accent);
+}

@@ -185,32 +185,48 @@
               </div>
             </section><!-- end of Tip & Split -->
 
-                        <!-- Currency mode (hidden until selected) -->
-            <section id="mode-currency" class="mode" hidden>
-              <h2 class="mode-title">Currency Converter</h2>
+              <!-- Currency mode (hidden until selected) -->
+              <section id="mode-currency" class="mode" hidden>
+                <h2 class="mode-title">Currency Converter</h2>
 
-           <!-- The rate is typed as "1 USD = ? PHP". PHP → USD divides by it, USD → PHP multiplies. -->
-              <label class="field">
-                Exchange Rate (1 USD = ? PHP )
-                <input type="number" id="rate-input" min="0" step="any" value="62">
-              </label>
+                <!-- Fills itself in for the chosen pair, but you can type your own rate -->
+                <label class="field">
+                  <span id="rate-label">Exchange Rate</span>
+                  <input type="number" id="rate-input" min="0" step="any">
+                </label>
 
-              <label class="field">
-                <span id="from-label">Amount in PHP</span>
-                <input type="number" id="currency-amount" min="0" step="any" placeholder="1000">
-              </label>
+                <!-- FROM: a currency dropdown and the amount you type -->
+                <div class="field">
+                  <span>From</span>
+                  <div class="currency-row">
+                    <!-- JavaScript fills the options, so we don't repeat them in HTML -->
+                    <select id="from-select" aria-label="From currency"></select>
+                    <input type="number" id="currency-amount" min="0" step="any" placeholder="1000" aria-label="Amount">
+                  </div>
+                </div>
 
-              <!-- Flips the direction: PHP → USD becomes USD → PHP -->
-              <button id="swap-currency" class="swap-btn">⇄ Swap</button>
+                <button id="swap-currency" class="swap-btn" aria-label="Swap currencies">⇅ Swap</button>
 
-              <button id="read-currency" class="read-btn">🔊 Read</button>  <!-- read out -->
+                <!-- TO: a currency dropdown and the answer (read-only) -->
+                <div class="field">
+                  <span>To</span>
+                  <div class="currency-row">
+                    <select id="to-select" aria-label="To currency"></select>
+                    <output id="converted" class="converted-box">—</output>
+                  </div>
+                </div>
 
-              <div class="result-card">
-                <span class="card-label" id="to-label">Converted to USD</span>
-                <span class="card-value" id="converted">$0.00</span>
-                <span class="card-note" id="rate-note"></span>
-              </div>
-            </section>  <!-- end of Currency -->
+                <button id="convert-btn" class="convert-btn">Convert</button>
+                <button id="read-currency" class="read-btn">🔊 Read</button>
+
+                <p class="rate-status" id="currency-hint">Enter an amount, then press Convert.</p>
+                <p class="rate-status" id="rate-status"></p>
+                <!-- The free rates service asks for a credit link -->
+                <p class="rate-status">
+                  <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate API</a>
+                </p>
+              </section>  <!-- end of Currency -->
+              
   </div>   <!-- end of .calculator -->
 
   <!-- Right column: History on top, Voice Readout below -->
