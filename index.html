@@ -159,10 +159,10 @@
             <section id="mode-currency" class="mode" hidden>
               <h2 class="mode-title">Currency Converter</h2>
 
-              <!-- The rate is always typed as "1 PHP = ? USD". Swapping uses 1 / rate. -->
+           <!-- The rate is typed as "1 USD = ? PHP". PHP → USD divides by it, USD → PHP multiplies. -->
               <label class="field">
-                Exchange Rate (1 PHP = ? USD)
-                <input type="number" id="rate-input" min="0" step="any" value="0.0175">
+                Exchange Rate (1 USD = ? PHP )
+                <input type="number" id="rate-input" min="0" step="any" value="62">
               </label>
 
               <label class="field">

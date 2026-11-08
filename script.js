@@ -540,7 +540,7 @@ function formatMoney(amount, code) {
 
 function updateCurrency() {
   const amount = parseFloat(currencyAmountInput.value);
-  const rate = parseFloat(rateInput.value);
+  const rate = parseFloat(rateInput.value);   // now means: pesos per 1 dollar
 
   // Labels follow the current direction
   fromLabelEl.textContent = `Amount in ${fromCurrency}`;
@@ -554,12 +554,13 @@ function updateCurrency() {
     return;
   }
 
-  // The typed rate is PHP → USD. If we're going USD → PHP, flip it.
-  const effectiveRate = fromCurrency === "PHP" ? rate : 1 / rate;
-  const converted = amount * effectiveRate;
+  // The rate is "pesos per dollar", so:
+  //   PHP → USD: divide  (pesos ÷ pesos-per-dollar = dollars)
+  //   USD → PHP: multiply (dollars × pesos-per-dollar = pesos)
+  const converted = fromCurrency === "PHP" ? amount / rate : amount * rate;
 
   convertedEl.textContent = formatMoney(converted, toCurrency);
-  rateNoteEl.textContent = `1 ${fromCurrency} = ${effectiveRate.toFixed(4)} ${toCurrency}`;
+  rateNoteEl.textContent = `1 USD = ${formatMoney(rate, "PHP")}`;
 
   currencySpeech = `${amount} ${currencyNames[fromCurrency]} is ${converted.toFixed(2)} ${currencyNames[toCurrency]}.`;
 }
