@@ -24,21 +24,37 @@
       <button class="nav-item" data-mode="discount">🏷️ Discount</button>
       <button class="nav-item" data-mode="tip">👥 Tip &amp; Split</button>
       <button class="nav-item" data-mode="currency">💱 Currency</button>
+
+       <!-- Theme picker: each swatch switches the color palette -->
+      <div class="theme-picker">
+        <p class="picker-title">Theme</p>
+        <div class="swatches">
+          <!-- data-palette is the name our CSS and JS look for -->
+          <button class="swatch active" data-palette="default" aria-label="Default theme" title="Default"></button>
+          <button class="swatch" data-palette="pastel" aria-label="Pastel theme" title="Pastel"></button>
+          <button class="swatch" data-palette="neon" aria-label="Neon theme" title="Neon"></button>
+          <button class="swatch" data-palette="ocean" aria-label="Ocean theme" title="Ocean"></button>
+          <button class="swatch" data-palette="sunset" aria-label="Sunset theme" title="Sunset"></button>
+         <button class="swatch" data-palette="graphite" aria-label="Graphite theme" title="Graphite"></button>
+        </div>
+  
+       <!-- Appearance: Dark / Auto / Light -->
+      <div class="appearance">
+        <p class="picker-title">Appearance</p>
+        <!-- data-theme-mode is the value our JavaScript reads -->
+        <div class="appearance-toggle" role="group" aria-label="Appearance">
+          <button class="appearance-btn" data-theme-mode="dark" aria-label="Dark mode" title="Dark">🌙</button>
+          <button class="appearance-btn" data-theme-mode="auto" aria-label="Auto: follow system" title="Auto (follow system)">🖥️</button>
+          <button class="appearance-btn" data-theme-mode="light" aria-label="Light mode" title="Light">☀️</button>
+        </div>
+        <!-- Says what Auto is doing right now -->
+        <p class="appearance-note" id="appearance-note"></p>
+      </div>
+
     </nav>
 
-        <!-- Theme picker: each swatch switches the color palette -->
-    <div class="theme-picker">
-      <p class="picker-title">Theme</p>
-      <div class="swatches">
-        <!-- data-palette is the name our CSS and JS look for -->
-        <button class="swatch active" data-palette="default" aria-label="Default theme" title="Default"></button>
-        <button class="swatch" data-palette="pastel" aria-label="Pastel theme" title="Pastel"></button>
-        <button class="swatch" data-palette="neon" aria-label="Neon theme" title="Neon"></button>
-        <button class="swatch" data-palette="ocean" aria-label="Ocean theme" title="Ocean"></button>
-        <button class="swatch" data-palette="sunset" aria-label="Sunset theme" title="Sunset"></button>
-      </div>
-    </div> 
 
+     
   <!-- Container: wraps the whole calculator so we can center and style it as one box -->
   <div class="calculator">
 
@@ -53,6 +69,7 @@
               <!-- your existing theme toggle button, unchanged -->
             <!-- aria-label describes the button for screen readers (icon-only buttons need it) -->
             <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark or light mode">☀️</button>
+        
           </div>
     </div>
 
@@ -226,7 +243,7 @@
                   <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate API</a>
                 </p>
               </section>  <!-- end of Currency -->
-              
+
   </div>   <!-- end of .calculator -->
 
   <!-- Right column: History on top, Voice Readout below -->

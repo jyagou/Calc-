@@ -830,3 +830,73 @@ select option {
 .rate-status a {
   color: var(--accent);
 }
+/* ---------- Graphite palette (neutral gray) ---------- */
+:root[data-palette="graphite"] {
+  --bg: #0f1012;
+  --calc-bg: #1a1b1e;
+  --display-bg: #111214;
+  --btn-bg: #2a2c31;
+  --btn-hover: #383b42;
+  --operator-bg: #4b5563;
+  --operator-hover: #5b6573;
+  --operator-text: #ffffff;
+  --equals-bg: #e5e7eb;
+  --equals-hover: #ffffff;
+  --equals-text: #111214;
+  --text: #eceff4;              /* neutral text, so nothing looks green */
+  --text-muted: #9aa0aa;
+  --accent: #f3f4f6;
+}
+:root[data-theme="light"][data-palette="graphite"] {
+  --bg: #eceef1;
+  --calc-bg: #ffffff;
+  --display-bg: #f3f4f6;
+  --btn-bg: #e5e7eb;
+  --btn-hover: #d5d8de;
+  --equals-bg: #1f2937;
+  --equals-hover: #111827;
+  --equals-text: #ffffff;
+  --text: #16181d;
+  --text-muted: #5d6470;
+  --accent: #1f2937;
+}
+
+.swatch[data-palette="graphite"] {
+  background: linear-gradient(135deg, #2a2c31, #e5e7eb);
+}
+
+/* ---------- Appearance switch (Dark / Auto / Light) ---------- */
+.appearance {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--btn-bg);
+}
+
+.appearance-toggle {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--display-bg);
+  border-radius: 999px;          /* fully rounded pill */
+}
+
+.appearance-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 1rem;
+  background: transparent;
+  border-radius: 999px;
+}
+.appearance-btn:hover {
+  background: var(--btn-hover);
+}
+/* Active comes AFTER hover so the chosen one keeps its color */
+.appearance-btn.active {
+  background: var(--operator-bg);
+}
+
+.appearance-note {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

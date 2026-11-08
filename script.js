@@ -7,8 +7,7 @@ const buttonsEl = document.querySelector(".buttons");       // the button grid
 
 // ---------- 2. State (what the calculator is remembering) ----------
 let currentInput = "0";      // the number currently shown (kept as text)
-let previousValue = null;    // the first number, saved when you press an operator
-let operator = null;         // the chosen operator: + − × ÷
+let tokens = [];   // the finished parts of the expression, e.g. [7, "+", 3, "×"]
 let expression = "";         // the text for the small line, e.g. "12 ×"
 let shouldResetInput = false; // true = the next digit starts a NEW number
 
@@ -21,7 +20,7 @@ function updateDisplay() {
 // ---------- 4. Typing numbers ----------
 function inputNumber(num) {
   // If the last thing was "=", start a completely new calculation
-  if (operator === null && shouldResetInput) {
+  if (tokens.length === 0 && shouldResetInput) {
     expression = "";
   }
 
@@ -37,6 +36,10 @@ function inputNumber(num) {
 
 // ---------- 5. Decimal point ----------
 function inputDecimal() {
+  if (tokens.length === 0 && shouldResetInput) {
+    expression = "";
+  }
+
   if (shouldResetInput) {
     currentInput = "0.";       // starting a new number with "."
     shouldResetInput = false;
@@ -50,35 +53,43 @@ function inputDecimal() {
 function chooseOperator(op) {
   if (currentInput === "Error") return;
 
-  // Chaining: if you type 5 + 3 and then press × we finish 5 + 3 first
-  if (operator !== null && !shouldResetInput) {
-    const result = calculate();
-    if (result === "Error") return showError();
-    currentInput = String(result);
+  if (shouldResetInput && tokens.length > 0) {
+    // An operator was just pressed, so the person changed their mind: swap it
+    tokens[tokens.length - 1] = op;
+  } else {
+    // Save the number being typed, then the operator
+    tokens.push(parseFloat(currentInput), op);
+    shouldResetInput = true;   // the next digit starts a new number
   }
 
-  previousValue = parseFloat(currentInput);
-  operator = op;
-  expression = `${currentInput} ${op}`;
-  shouldResetInput = true; // next digit starts the second number
+  expression = tokens.join(" ");   // e.g. "7 + 3 ×"
   updateDisplay();
 }
 
 // ---------- 7. The math ----------
-function calculate() {
-  const a = previousValue;
-  const b = parseFloat(currentInput);
-  let result;
+// ---------- The math, with order of operations ----------
+// Takes a list like [7, "+", 3, "×", 4] and returns the answer (19).
+function evaluate(list) {
+  // Pass 1: do × and ÷ first. "stack" holds numbers and the + − still waiting.
+  const stack = [list[0]];
 
-  switch (operator) {
-    case "+": result = a + b; break;
-    case "−": result = a - b; break;
-    case "×": result = a * b; break;
-    case "÷":
-      if (b === 0) return "Error"; // can't divide by zero
-      result = a / b;
-      break;
-    default: return b;
+  for (let i = 1; i < list.length; i += 2) {   // each step: one operator + the number after it
+    const op = list[i];
+    const next = list[i + 1];
+
+    if (op === "×" || op === "÷") {
+      const left = stack.pop();                // take the number just before it
+      if (op === "÷" && next === 0) return "Error";   // can't divide by zero
+      stack.push(op === "×" ? left * next : left / next);
+    } else {
+      stack.push(op, next);                    // + and − wait for pass 2
+    }
+  }
+
+  // Pass 2: only + and − are left, so go left to right
+  let result = stack[0];
+  for (let i = 1; i < stack.length; i += 2) {
+    result = stack[i] === "+" ? result + stack[i + 1] : result - stack[i + 1];
   }
 
   // Fixes problems like 0.1 + 0.2 = 0.30000000000000004
@@ -87,47 +98,42 @@ function calculate() {
 
 // ---------- 8. Equals button ----------
 function pressEquals() {
-  // Do nothing if there's no operator, or no second number yet
-  if (operator === null || shouldResetInput) return;
+  // Nothing to do if there's no operator yet, or the last key pressed was an operator
+  if (tokens.length === 0 || shouldResetInput) return;
 
-  const secondNumber = currentInput;
-  const result = calculate();
+  // The saved parts plus the number being typed, e.g. [7, "+", 3, "×", 4]
+  const fullExpression = [...tokens, parseFloat(currentInput)];
+  const result = evaluate(fullExpression);
 
   if (result === "Error") return showError();
 
-  expression = `${previousValue} ${operator} ${secondNumber} =`;
+  const expressionText = fullExpression.join(" ");
+  expression = `${expressionText} =`;
 
-  // NEW: save this calculation to the history panel
-  addToHistory(`${previousValue} ${operator} ${secondNumber}`, String(result));
+  addToHistory(expressionText, String(result));
 
   currentInput = String(result);
-  previousValue = null;
-  operator = null;
-  shouldResetInput = true; // next digit starts a fresh calculation
+  tokens = [];               // start fresh, but keep the result on screen
+  shouldResetInput = true;   // next digit starts a new calculation
   updateDisplay();
 
-  // NEW: read the answer out loud
   speak(`The result is ${numberToWords(currentInput)}`);
 }
-
 
 // ---------- 9. Error handling ----------
 function showError() {
   currentInput = "Error";
   expression = "";
-  previousValue = null;
-  operator = null;
+  tokens = [];
   shouldResetInput = true;
   updateDisplay();
 
   speak("Error. Cannot divide by zero.");
 }
 
-// ---------- 10. Clear (C) ----------
 function clearAll() {
   currentInput = "0";
-  previousValue = null;
-  operator = null;
+  tokens = [];
   expression = "";
   shouldResetInput = false;
   updateDisplay();
@@ -187,37 +193,78 @@ buttonsEl.addEventListener("click", (e) => {
   }
 });
 
-// ---------- Dark / Light mode ----------
-const themeToggle = document.getElementById("theme-toggle");
+      // ---------- Appearance: Dark / Auto / Light ----------
+      const themeToggle = document.getElementById("theme-toggle");          // round button at the top
+      const appearanceBtns = document.querySelectorAll(".appearance-btn");  // the 3-way switch
+      const appearanceNote = document.getElementById("appearance-note");
 
-// Applies a theme by setting data-theme on <html>.
-// Our CSS reacts to this attribute and swaps the colors.
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  // Show the icon for the mode you'd switch TO
-  themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
-}
+      // Asks the browser: "does the device want dark mode right now?"
+      const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-// Decide the starting theme:
-// 1) use the saved choice if there is one, 2) otherwise follow the device setting.
-// try/catch protects us if the browser blocks localStorage.
-let savedTheme = null;
-try {
-  savedTheme = localStorage.getItem("theme");
-} catch (err) {}
+      // themeMode is what the PERSON chose: "dark", "light", or "auto".
+      // This is the one value everything else is based on.
+      let themeMode = "auto";
 
-const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-applyTheme(savedTheme || (systemPrefersDark ? "dark" : "light"));
+      // Turns the choice into an actual theme. In auto mode, the device decides.
+      function getEffectiveTheme() {
+        if (themeMode === "auto") return systemDarkQuery.matches ? "dark" : "light";
+        return themeMode;
+      }
 
-// When the toggle is clicked: flip the theme and save the choice.
-themeToggle.addEventListener("click", () => {
-  const current = document.documentElement.getAttribute("data-theme");
-  const next = current === "dark" ? "light" : "dark";
-  applyTheme(next);
-  try {
-    localStorage.setItem("theme", next);  // remembered even after refresh
-  } catch (err) {}
-});
+      // Updates the page and everything that shows the current mode
+      function applyThemeMode() {
+        const theme = getEffectiveTheme();
+
+        // Our CSS reacts to this attribute and swaps the colors
+        document.documentElement.setAttribute("data-theme", theme);
+
+        // The round button shows the mode you'd switch TO
+        themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+
+        // Highlight the chosen button in the 3-way switch
+        appearanceBtns.forEach((btn) => {
+          const isActive = btn.dataset.themeMode === themeMode;
+          btn.classList.toggle("active", isActive);
+          btn.setAttribute("aria-pressed", isActive);
+        });
+
+        // Explain what Auto is doing right now
+        appearanceNote.textContent =
+          themeMode === "auto" ? `Following your device (${theme})` : "";
+      }
+
+      // Saves a new choice and applies it
+      function setThemeMode(mode) {
+        themeMode = mode;
+        try {
+          localStorage.setItem("themeMode", mode);
+        } catch (err) {}
+        applyThemeMode();
+      }
+
+      // Load the saved choice. We also read the old "theme" value saved by the
+      // earlier version, so nobody loses their setting.
+      try {
+        const saved = localStorage.getItem("themeMode") || localStorage.getItem("theme");
+        if (["dark", "light", "auto"].includes(saved)) themeMode = saved;
+      } catch (err) {}
+
+      // The 3-way switch
+      appearanceBtns.forEach((btn) => {
+        btn.addEventListener("click", () => setThemeMode(btn.dataset.themeMode));
+      });
+
+      // The round button at the top still flips between dark and light
+      themeToggle.addEventListener("click", () => {
+        setThemeMode(getEffectiveTheme() === "dark" ? "light" : "dark");
+      });
+
+      // If the device switches (for example, at sunset), follow it, but only in Auto mode
+      systemDarkQuery.addEventListener("change", () => {
+        if (themeMode === "auto") applyThemeMode();
+      });
+
+      applyThemeMode();
 
 // ---------- History ----------
 const historyListEl = document.getElementById("history-list");
@@ -298,8 +345,7 @@ function renderHistory() {
     btn.addEventListener("click", () => {
       currentInput = item.result;
       expression = "";
-      previousValue = null;
-      operator = null;
+      tokens = [];
       shouldResetInput = true;   // next digit starts a new number
       updateDisplay();
     });
@@ -621,7 +667,7 @@ voiceToggle.addEventListener("click", () => {
     localStorage.setItem("voiceOn", voiceOn);
   } catch (err) {}
   updateVoiceButton();
-  // speak("Voice on");   // a short test, so you hear that it works
+
 
   if (voiceOn) {
     speak("Voice on");   // a short test, so you hear that it works
@@ -809,17 +855,6 @@ fillRate();     // show the sample rate right away
 resetResult();
 loadRates();    // then try to replace it with live rates
 
-// Read button
-document.getElementById("read-currency").addEventListener("click", () => {
-  speak(currencySpeech || "Please enter an amount and a rate first.", true);
-});
-
-// Update live on every keystroke
-rateInput.addEventListener("input", updateCurrency);
-currencyAmountInput.addEventListener("input", updateCurrency);
-
-updateCurrency();
-
 // ---------- Read buttons ----------
 // If there's nothing valid to read, say a helpful hint instead.
 document.getElementById("read-discount").addEventListener("click", () => {
@@ -829,10 +864,6 @@ document.getElementById("read-discount").addEventListener("click", () => {
 document.getElementById("read-tip").addEventListener("click", () => {
   speak(tipSpeech || "Please enter the total amount first.", true);
 });
-
-// document.getElementById("read-currency").addEventListener("click", () => {
-//   speak(currencySpeech || "Please enter an amount and a rate first.", true);
-// });
 
 // Hide the Read buttons in browsers that can't speak
 if (!speechSupported) {
