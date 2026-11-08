@@ -229,13 +229,15 @@ body,
 
 /* Each history entry is a button, so it can be clicked or tabbed to */
 .history-item {
+  position: relative;               /* lets the icon sit inside the button */
   width: 100%;
-  padding: 12px 14px;
+  padding: 12px 44px 12px 14px;     /* extra space on the right for the icon */
   text-align: left;
   font-size: 1rem;
   background: var(--display-bg);
   border-radius: 14px;
 }
+
 .history-item:hover {
   background: var(--btn-hover);
 }
@@ -899,4 +901,44 @@ select option {
   margin-top: 8px;
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+/* ---------- History reuse icon ---------- */
+.history-reuse {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  color: var(--text-muted);
+  transition: transform 0.3s, color 0.2s;
+}
+/* The icon spins half a turn and lights up when you hover the entry */
+.history-item:hover .history-reuse {
+  color: var(--accent);
+  transform: translateY(-50%) rotate(180deg);
+}
+/* ---------- Keyboard tip box ---------- */
+.tip-box {
+  margin-top: 16px;
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--display-bg);
+  border-left: 3px solid var(--accent);   /* colored stripe on the left */
+  border-radius: 12px;
+}
+.tip-box strong {
+  color: var(--text);
+}
+
+/* <kbd> is the HTML tag for "a keyboard key". We style it like a little key cap. */
+kbd {
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--text);
+  background: var(--btn-bg);
+  border-radius: 6px;
 }

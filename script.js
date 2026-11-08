@@ -301,6 +301,21 @@ function addToHistory(expressionText, resultText) {
   renderHistory();
 }
 
+// Turns a saved date into "Today, 10:24 AM", "Yesterday, 9:58 PM", or "Nov 6, 2:50 PM"
+function formatHistoryTime(isoString) {
+  const date = new Date(isoString);
+  const now = new Date();
+  const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+  // Compare calendar days (midnight to midnight), not hours
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const daysAgo = Math.round((startOfDay(now) - startOfDay(date)) / 86400000);   // 86,400,000 ms = 1 day
+
+  if (daysAgo === 0) return `Today, ${time}`;
+  if (daysAgo === 1) return `Yesterday, ${time}`;
+  return `${date.toLocaleDateString([], { month: "short", day: "numeric" })}, ${time}`;
+} 
+
 // Redraw the whole list from the history array.
 function renderHistory() {
   historyListEl.innerHTML = "";   // empty the list first
@@ -329,16 +344,19 @@ function renderHistory() {
     resultSpan.className = "history-result";
     resultSpan.textContent = item.result;
 
-    const timeSpan = document.createElement("span");
+  const timeSpan = document.createElement("span");
     timeSpan.className = "history-time";
-    timeSpan.textContent = new Date(item.time).toLocaleString([], {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    timeSpan.textContent = formatHistoryTime(item.time);
 
-    btn.append(exprSpan, resultSpan, timeSpan);
+    // The ↻ icon on the right shows that clicking reuses the result
+    const reuseIcon = document.createElement("span");
+    reuseIcon.className = "history-reuse";
+    reuseIcon.textContent = "↻";
+    reuseIcon.setAttribute("aria-hidden", "true");   // decoration only, screen readers skip it
+
+    btn.title = "Use this result";
+    btn.append(exprSpan, resultSpan, timeSpan, reuseIcon);
+    // btn.append(exprSpan, resultSpan, timeSpan);
 
     // Clicking an entry loads its result back into the calculator,
     // so you can keep calculating from it.
