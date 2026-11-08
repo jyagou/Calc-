@@ -14,6 +14,7 @@
   --text-muted: #8fa89c;    /* expression (small line) color */
   --accent: #8fe0b5;        /* result number color */
   --equals-text: #0d1a1a;   /* text color on the equals button */
+  --equals-hover: #8fe0b5;  /* equals button when hovered */
 }
 
 /* ---------- Reset ----------
@@ -416,4 +417,33 @@ input[type="number"]:focus {
 }/* Invisible but still takes up space, so the layout doesn't jump */
 .history.invisible {
   visibility: hidden;
+}
+/* Keeps the voice and theme buttons side by side */
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+/* ---------- Read buttons ---------- */
+.read-btn {
+  width: 100%;
+  padding: 10px 0;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  background: var(--btn-bg);
+  border-radius: 12px;
+}
+.read-btn:hover {
+  background: var(--btn-hover);
+}
+/* ---------- Currency mode ---------- */
+.swap-btn {
+  width: 100%;
+  padding: 10px 0;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  background: var(--operator-bg);
+  border-radius: 12px;
+}
+.swap-btn:hover {
+  background: var(--operator-hover);
 }

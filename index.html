@@ -23,6 +23,7 @@
       <button class="nav-item active" data-mode="normal">🧮 Normal</button>
       <button class="nav-item" data-mode="discount">🏷️ Discount</button>
       <button class="nav-item" data-mode="tip">👥 Tip &amp; Split</button>
+      <button class="nav-item" data-mode="currency">💱 Currency</button>
     </nav>
 
   <!-- Container: wraps the whole calculator so we can center and style it as one box -->
@@ -31,9 +32,16 @@
     <!-- Top bar: app name on the left, theme toggle button on the right -->
     <div class="topbar">
             <span class="title">Calc+</span>
+
+            <!-- NEW: wrapper so both round buttons stay together on the right -->
+            <div class="topbar-actions">
+              <!-- Voice on/off button -->
+              <button id="voice-toggle" class="theme-toggle" aria-label="Turn voice readout on or off">🔇</button>
+              <!-- your existing theme toggle button, unchanged -->
             <!-- aria-label describes the button for screen readers (icon-only buttons need it) -->
             <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark or light mode">☀️</button>
           </div>
+    </div>
 
         <section id="mode-normal" class="mode">   <!-- NEW opening tag -->
 
@@ -102,6 +110,7 @@
                 Discount (%)
                 <input type="number" id="discount-percent" min="0" max="100" step="any" placeholder="20">
               </label>
+              <button id="read-discount" class="read-btn">🔊 Read</button>  <!-- read out -->
 
               <div class="result-card">
                 <span class="card-label">Sale Price</span>
@@ -137,14 +146,42 @@
                   <button id="people-plus" aria-label="More people">+</button>
                 </div>
               </div>
+              <button id="read-tip" class="read-btn">🔊 Read</button>  <!-- read out -->
 
               <div class="result-card">
                 <div class="row"><span>Tip Amount</span><strong id="tip-amount">₱0.00</strong></div>
                 <div class="row"><span>Total (with tip)</span><strong id="tip-total">₱0.00</strong></div>
                 <div class="row"><span>Per Person</span><strong id="tip-per-person">₱0.00</strong></div>
               </div>
-            </section>
-  </div>
+            </section>  <!-- end of Tip & Split -->
+
+                        <!-- Currency mode (hidden until selected) -->
+            <section id="mode-currency" class="mode" hidden>
+              <h2 class="mode-title">Currency Converter</h2>
+
+              <!-- The rate is always typed as "1 PHP = ? USD". Swapping uses 1 / rate. -->
+              <label class="field">
+                Exchange Rate (1 PHP = ? USD)
+                <input type="number" id="rate-input" min="0" step="any" value="0.0175">
+              </label>
+
+              <label class="field">
+                <span id="from-label">Amount in PHP</span>
+                <input type="number" id="currency-amount" min="0" step="any" placeholder="1000">
+              </label>
+
+              <!-- Flips the direction: PHP → USD becomes USD → PHP -->
+              <button id="swap-currency" class="swap-btn">⇄ Swap</button>
+
+              <button id="read-currency" class="read-btn">🔊 Read</button>  <!-- read out -->
+
+              <div class="result-card">
+                <span class="card-label" id="to-label">Converted to USD</span>
+                <span class="card-value" id="converted">$0.00</span>
+                <span class="card-note" id="rate-note"></span>
+              </div>
+            </section>  <!-- end of Currency -->
+  </div>   <!-- end of .calculator -->
 
   <!-- History panel: sits next to the calculator -->
     <aside class="history">

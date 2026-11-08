@@ -105,7 +105,11 @@ function pressEquals() {
   operator = null;
   shouldResetInput = true; // next digit starts a fresh calculation
   updateDisplay();
+
+  // NEW: read the answer out loud
+  speak(`The result is ${toSpeakable(currentInput)}`);
 }
+
 
 // ---------- 9. Error handling ----------
 function showError() {
@@ -115,6 +119,8 @@ function showError() {
   operator = null;
   shouldResetInput = true;
   updateDisplay();
+
+  speak("Error. Cannot divide by zero.");
 }
 
 // ---------- 10. Clear (C) ----------
@@ -354,6 +360,8 @@ const percentInput = document.getElementById("discount-percent");
 const salePriceEl = document.getElementById("sale-price");
 const discountNoteEl = document.getElementById("discount-note");
 
+let discountSpeech = "";   // the sentence the Read button will say
+
 function updateDiscount() {
   const price = parseFloat(priceInput.value);
   const percent = parseFloat(percentInput.value);
@@ -362,6 +370,7 @@ function updateDiscount() {
   if (isNaN(price) || isNaN(percent) || price < 0 || percent < 0 || percent > 100) {
     salePriceEl.textContent = formatPeso(0);
     discountNoteEl.textContent = "Enter a price and a discount from 0 to 100.";
+    discountSpeech = "";   // NEW: nothing valid to read
     return;
   }
 
@@ -370,6 +379,9 @@ function updateDiscount() {
 
   salePriceEl.textContent = formatPeso(sale);
   discountNoteEl.textContent = `You save ${formatPeso(saved)} (${percent}%)`;
+
+  // NEW: "pesos" is spoken more clearly than the ₱ symbol
+  discountSpeech = `The sale price is ${sale.toFixed(2)} pesos. You save ${saved.toFixed(2)} pesos.`;
 }
 
 // "input" fires on every keystroke, so results update live
@@ -387,6 +399,7 @@ const perPersonEl = document.getElementById("tip-per-person");
 
 let tipPercent = 15;   // matches the button marked "active" in the HTML
 let people = 1;
+let tipSpeech = "";
 
 function updateTip() {
   const bill = parseFloat(billInput.value);
@@ -396,15 +409,21 @@ function updateTip() {
     tipAmountEl.textContent = formatPeso(0);
     tipTotalEl.textContent = formatPeso(0);
     perPersonEl.textContent = formatPeso(0);
+    tipSpeech = "";   // NEW: nothing valid to read
     return;
   }
 
   const tip = (bill * tipPercent) / 100;
   const total = bill + tip;
+  const perPerson = total / people;   // NEW: store it, since we use it twice
+
 
   tipAmountEl.textContent = formatPeso(tip);
   tipTotalEl.textContent = formatPeso(total);
-  perPersonEl.textContent = formatPeso(total / people);
+  perPersonEl.textContent = formatPeso(perPerson);
+
+  // NEW
+  tipSpeech = `The tip is ${tip.toFixed(2)} pesos. The total is ${total.toFixed(2)} pesos. Each person pays ${perPerson.toFixed(2)} pesos.`;
 }
 
 // Preset buttons (10%, 15%, 20%)
@@ -442,15 +461,156 @@ billInput.addEventListener("input", updateTip);
 updateDiscount();
 updateTip();
 
+// ---------- Voice readout ----------
+const voiceToggle = document.getElementById("voice-toggle");
+
+// Some browsers don't support speech. If so, hide the button.
+const speechSupported = "speechSynthesis" in window;
+if (!speechSupported) voiceToggle.hidden = true;
+
+// Load the saved on/off choice (off by default)
+let voiceOn = false;
+try {
+  voiceOn = localStorage.getItem("voiceOn") === "true";
+} catch (err) {}
+
+// Show 🔊 when on and 🔇 when off
+function updateVoiceButton() {
+  voiceToggle.textContent = voiceOn ? "🔊" : "🔇";
+  voiceToggle.setAttribute("aria-pressed", voiceOn);
+}
+
+// Say something out loud (does nothing if the voice is off)
+function speak(text, force = false) {
+  if (!speechSupported || !voiceOn && !force) return;
+
+  window.speechSynthesis.cancel();   // stop anything still being said
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  window.speechSynthesis.speak(utterance);
+}
+
+// Turns "-5" into "negative 5" so it's spoken clearly
+function toSpeakable(value) {
+  return String(value).replace(/^-/, "negative ");
+}
+
+voiceToggle.addEventListener("click", () => {
+  voiceOn = !voiceOn;
+  try {
+    localStorage.setItem("voiceOn", voiceOn);
+  } catch (err) {}
+  updateVoiceButton();
+  // speak("Voice on");   // a short test, so you hear that it works
+
+  if (voiceOn) {
+    speak("Voice on");   // a short test, so you hear that it works
+  } else {
+    window.speechSynthesis.cancel();   // voice turned off: stop speaking right away
+  }
+
+});
+
+updateVoiceButton();
+
+// ---------- Currency mode ----------
+const rateInput = document.getElementById("rate-input");
+const currencyAmountInput = document.getElementById("currency-amount");
+const fromLabelEl = document.getElementById("from-label");
+const toLabelEl = document.getElementById("to-label");
+const convertedEl = document.getElementById("converted");
+const rateNoteEl = document.getElementById("rate-note");
+
+let fromCurrency = "PHP";
+let toCurrency = "USD";
+let currencySpeech = "";   // the sentence the Read button will say
+
+// Each currency gets its own number format (₱1,000.00 vs $17.50)
+const currencyLocales = { PHP: "en-PH", USD: "en-US" };
+
+// Full names are spoken better than "PHP" or "USD"
+const currencyNames = { PHP: "Philippine pesos", USD: "US dollars" };
+
+function formatMoney(amount, code) {
+  return amount.toLocaleString(currencyLocales[code], {
+    style: "currency",
+    currency: code,
+  });
+}
+
+function updateCurrency() {
+  const amount = parseFloat(currencyAmountInput.value);
+  const rate = parseFloat(rateInput.value);
+
+  // Labels follow the current direction
+  fromLabelEl.textContent = `Amount in ${fromCurrency}`;
+  toLabelEl.textContent = `Converted to ${toCurrency}`;
+
+  // Invalid input: show zero and a hint instead of NaN
+  if (isNaN(amount) || isNaN(rate) || amount < 0 || rate <= 0) {
+    convertedEl.textContent = formatMoney(0, toCurrency);
+    rateNoteEl.textContent = "Enter an amount and a valid rate.";
+    currencySpeech = "";
+    return;
+  }
+
+  // The typed rate is PHP → USD. If we're going USD → PHP, flip it.
+  const effectiveRate = fromCurrency === "PHP" ? rate : 1 / rate;
+  const converted = amount * effectiveRate;
+
+  convertedEl.textContent = formatMoney(converted, toCurrency);
+  rateNoteEl.textContent = `1 ${fromCurrency} = ${effectiveRate.toFixed(4)} ${toCurrency}`;
+
+  currencySpeech = `${amount} ${currencyNames[fromCurrency]} is ${converted.toFixed(2)} ${currencyNames[toCurrency]}.`;
+}
+
+// Swap button: trade the two currencies, then recalculate
+document.getElementById("swap-currency").addEventListener("click", () => {
+  [fromCurrency, toCurrency] = [toCurrency, fromCurrency];
+  updateCurrency();
+});
+
+// Read button
+document.getElementById("read-currency").addEventListener("click", () => {
+  speak(currencySpeech || "Please enter an amount and a rate first.", true);
+});
+
+// Update live on every keystroke
+rateInput.addEventListener("input", updateCurrency);
+currencyAmountInput.addEventListener("input", updateCurrency);
+
+updateCurrency();
+
+// ---------- Read buttons ----------
+// If there's nothing valid to read, say a helpful hint instead.
+document.getElementById("read-discount").addEventListener("click", () => {
+  speak(discountSpeech || "Please enter a price and a discount first.", true);
+});
+
+document.getElementById("read-tip").addEventListener("click", () => {
+  speak(tipSpeech || "Please enter the total amount first.", true);
+});
+
+// document.getElementById("read-currency").addEventListener("click", () => {
+//   speak(currencySpeech || "Please enter an amount and a rate first.", true);
+// });
+
+// Hide the Read buttons in browsers that can't speak
+if (!speechSupported) {
+  document.querySelectorAll(".read-btn").forEach((btn) => (btn.hidden = true));
+}
+
 // Show the starting "0" when the page loads
 updateDisplay();
+
 
 // ---------- Keyboard support ----------
 // "keydown" fires every time a key is pressed anywhere on the page.
 document.addEventListener("keydown", (e) => {
   // NEW: only handle calculator keys while in Normal mode
   if (currentMode !== "normal") return;
-
+  // Ignore shortcuts like Ctrl+C / Cmd+C so copy and paste still work
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
   const key = e.key;
   // ... the rest stays the same
 
