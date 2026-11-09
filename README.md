@@ -2,7 +2,7 @@
 
 More than just numbers. A multi-mode calculator built with plain HTML, CSS, and JavaScript, with no frameworks or libraries.
 
-**[Live demo](https://github.com/jyagou/Calc-plus))**
+**[Live demo](https://jyagou.github.io/Calc-plus/)**
 
 ## Screenshots
 
@@ -24,6 +24,21 @@ More than just numbers. A multi-mode calculator built with plain HTML, CSS, and 
 ## Built with
 
 HTML, CSS (custom properties, grid, flexbox), and vanilla JavaScript (DOM events, `localStorage`, `fetch`, Web Speech API).
+
+## What I learned
+
+- **Debugging with the Console:** one leftover line from old code crashed my script and stopped
+  everything below it, including the theme picker. The browser Console showed the exact error,
+  so now I check it first.
+- **Data structures matter:** my calculator only remembered one operator, so it couldn't do
+  order of operations. Storing the expression as a list fixed it.
+- **Working with APIs:** I used `fetch` and `async/await` to load live exchange rates, and added
+  a saved copy and a fallback so the app still works offline.
+- **CSS variables:** I built 6 palettes and dark/light/auto modes by changing variables
+  instead of rewriting styles.
+- Double check block of codes, if a code appear twice, as experienced in the updateCurrency function... it can result to a crash.
+- When a script crashes, everything below the block of code which crashed won't run.
+
 
 ## Known limitations
 
