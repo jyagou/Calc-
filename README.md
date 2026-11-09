@@ -4,9 +4,12 @@ More than just numbers. A multi-mode calculator built with plain HTML, CSS, and 
 
 **[Live demo](https://github.com/jyagou/Calc-plus))**
 
-![Calc+ in dark mode](screenshots/dark.png)
+## Screenshots
 
+![Calc+ in dark mode](screenshots/dark.png)
 ![Calc+ in light mode](screenshots/light.png)
+![Currency converter](screenshots/currency.png)
+![Tip and Split Bill](screenshots/tip-split.png)
 
 ## Features
 
